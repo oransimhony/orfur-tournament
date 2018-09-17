@@ -231,10 +231,6 @@ def get_player_pos():
 
 def disconnect():
     my_socket.sendto("99", s_host)
-    (data, addr) = my_socket.recvfrom(1024)
-    print "The server sent: " + data
-
-
 
 #2 Initialize the game
 pygame.init()

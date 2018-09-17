@@ -11,7 +11,7 @@ p2 = [700, 100, 3.0]
 p3 = [100, 500, 0.0]
 p4 = [700, 500, 3.0]
 
-bullet = [player, angle, x, y]
+# bullet = [player, angle, x, y]
 
 keys = [False, False, False, False]
 
