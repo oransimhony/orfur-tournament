@@ -12,6 +12,7 @@ p3 = [100, 500, 0.0]
 p4 = [700, 500, 3.0]
 
 # bullet = [player, angle, x, y]
+bullets = []
 
 keys = [False, False, False, False]
 
@@ -139,6 +140,49 @@ while True:
         elif code == "34":
             print 'Sending pos#4'
             server_socket.sendto(str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+            
+        elif code == "40":
+            print 'Getting bullet'
+            data = msg[2:]
+            print data, addr
+            data = data.split(',')
+            print bullets
+            bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
+            print bullets
+            s = "["
+            for bullet in bullets:
+                s += "["
+                for n in bullet:
+                    s += str(n) + "$"
+                s = s[:-1]
+                s += "]#"
+            s = s[:-1]
+            s += "]"
+            for addr in addrs:
+                server_socket.sendto("B," + s, addr)
+
+        elif code == "50":
+            l = len(bullets)
+            print 'Deleting bullet'
+            data = msg[2:]
+            print data, addr
+            data = data.split(',')
+            # print bullets
+            bullets.remove([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
+            # print bullets
+            if l - len(bullets) != 1:
+                print "DELETE FAILED"
+            s = "["
+            for bullet in bullets:
+                s += "["
+                for n in bullet:
+                    s += str(n) + "$"
+                s = s[:-1]
+                s += "]#"
+            s = s[:-1]
+            s += "]"
+            for addr in addrs:
+                server_socket.sendto("B," + s, addr)
 
         elif code == "99":
             if players["1"] == addr:
