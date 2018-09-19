@@ -34,7 +34,7 @@ class receiveThread(threading.Thread):
         print "Listening"
         while True:
             try:
-                (data, addr) = my_socket.recvfrom(1024)
+                (data, addr) = my_socket.recvfrom(8192)
                 # print "The server sent: " + data
                 data = data.split(",")
                 code = data[0]
@@ -274,7 +274,7 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Top Down Shooter")
 flags = screen.get_flags()
 keys = [False, False, False, False]
-arrow_speed = 40
+arrow_speed = 10
 player_speed = 6
 clock = pygame.time.Clock()
 frame = 0
@@ -388,6 +388,7 @@ while running:
             send_bullet(bullet)
         index += 1
         for projectile in bullets:
+            print len(projectile), projectile
             arrow1 = pygame.transform.rotate(arrow, 360-projectile[1]*57.29)
             screen.blit(arrow1, (projectile[2], projectile[3]))
 
@@ -456,10 +457,10 @@ while running:
         send_player_pos()
 
     clock.tick(30)
-    frame += 1
-    if frame == 30:
-        print bullets
-        frame = 0
+    # frame += 1
+    # if frame == 30:
+    #     print bullets
+    #     frame = 0
 
 
 while True:

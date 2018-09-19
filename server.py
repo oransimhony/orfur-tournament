@@ -13,6 +13,7 @@ p4 = [700, 500, 3.0]
 
 # bullet = [player, angle, x, y]
 bullets = []
+bc = {"1": 0, "2": 0, "3": 0, "4": 0}
 
 keys = [False, False, False, False]
 
@@ -147,7 +148,12 @@ while True:
             print data, addr
             data = data.split(',')
             print bullets
-            bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
+            print bc
+            p = str(data[0])
+            if p in bc:
+                bc[p] += 1
+            if bc[p] < 6:
+                bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
             print bullets
             s = "["
             for bullet in bullets:
@@ -168,6 +174,10 @@ while True:
             print data, addr
             data = data.split(',')
             # print bullets
+            print bc
+            p = str(data[0])
+            if p in bc:
+                bc[p] -= 1
             bullets.remove([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
             # print bullets
             if l - len(bullets) != 1:
@@ -182,6 +192,8 @@ while True:
             s = s[:-1]
             s += "]"
             for addr in addrs:
+                print len("B," + s)
+                print "B," + s
                 server_socket.sendto("B," + s, addr)
 
         elif code == "99":
