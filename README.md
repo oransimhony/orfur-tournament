@@ -1,5 +1,6 @@
 # Fron Tournament
-A multiplayer top-down shooter game made in Python with PyGame
+
+A multiplayer top-down shooter game made in Python with PyGame :sparkles:
 
 ## Getting Started
 
@@ -8,6 +9,12 @@ Clone the project and run game.py
 ### Prerequisites
 
 You only need Python 2.7 and PyGame
+
+#### To install PyGame
+
+```
+pip install pygame
+```
 
 ## Built With
 
