@@ -1,5 +1,4 @@
 import socket
-import select
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -11,9 +10,7 @@ p2 = [700, 100, 3.0]
 p3 = [100, 500, 0.0]
 p4 = [700, 500, 3.0]
 
-# bullet = [player, angle, x, y]
 bullets = []
-bc = {"1": 0, "2": 0, "3": 0, "4": 0}
 
 keys = [False, False, False, False]
 
@@ -26,6 +23,12 @@ addrs = []
 while True:
     try:
         msg, addr = server_socket.recvfrom(2048)
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print message
+        msg, addr = "", ()
+    if msg != "":
         code = msg[:2]
         print "start - ", msg, code, addr
         if code == "00":
@@ -81,7 +84,6 @@ while True:
                 p1[i] = int(data[i])
             p1[2] = data[2]
             server_socket.sendto("OK. " + "\tP1: " + str(p1), addr)
-            # notify all players
             for addr in addrs:
                 server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
         elif code == "12":
@@ -93,7 +95,6 @@ while True:
                 p2[i] = int(data[i])
             p2[2] = data[2]
             server_socket.sendto("OK. " + "\tP2: " + str(p2), addr)
-            # notify all players
             for addr in addrs:
                 server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
         elif code == "13":
@@ -105,7 +106,6 @@ while True:
                 p3[i] = int(data[i])
             p3[2] = data[2]
             server_socket.sendto("OK. " + "\tP3: " + str(p3), addr)
-            # notify all players
             for addr in addrs:
                 server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
         elif code == "14":
@@ -117,7 +117,6 @@ while True:
                 p4[i] = int(data[i])
             p4[2] = data[2]
             server_socket.sendto("OK. " + "\tP4: " + str(p4), addr)
-            # notify all players
             for addr in addrs:
                 server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
         elif code == "20":
@@ -141,20 +140,13 @@ while True:
         elif code == "34":
             print 'Sending pos#4'
             server_socket.sendto(str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
-            
+
         elif code == "40":
             print 'Getting bullet'
             data = msg[2:]
             print data, addr
             data = data.split(',')
-            print bullets
-            print bc
-            p = str(data[0])
-            if p in bc:
-                bc[p] += 1
-            if bc[p] < 6:
-                bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
-            print bullets
+            bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
             s = "["
             for bullet in bullets:
                 s += "["
@@ -168,19 +160,14 @@ while True:
                 server_socket.sendto("B," + s, addr)
 
         elif code == "50":
-            l = len(bullets)
+            length = len(bullets)
             print 'Deleting bullet'
             data = msg[2:]
             print data, addr
             data = data.split(',')
-            # print bullets
-            print bc
-            p = str(data[0])
-            if p in bc:
-                bc[p] -= 1
+            print data, bullets
             bullets.remove([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
-            # print bullets
-            if l - len(bullets) != 1:
+            if length - len(bullets) != 1:
                 print "DELETE FAILED"
             s = "["
             for bullet in bullets:
@@ -189,7 +176,7 @@ while True:
                     s += str(n) + "$"
                 s = s[:-1]
                 s += "]#"
-            s = s[:-1]
+            s = s[:-1] if len(s) > 1 else s
             s += "]"
             for addr in addrs:
                 print len("B," + s)
@@ -215,11 +202,4 @@ while True:
                 server_socket.sendto("Disconnected player #4", addr)
 
         else:
-            server_socket.sendto("Wrong code. " + code , addr)
-    except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        print message
-
-
-    # server_socket.sendto("OK. " + "\tP1: " + str(p1) + "\tKEYS: " + str(keys), addr)
+            server_socket.sendto("Wrong code. " + code, addr)

@@ -1,8 +1,9 @@
-#1 Import libraries
-import pygame, math, random
-from pygame.locals import *
+import math
 import socket
 import threading
+
+import pygame
+from pygame.locals import *
 
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -13,12 +14,12 @@ p1 = [100, 100, 0.0]
 p2 = [700, 100, 3.0]
 p3 = [100, 500, 0.0]
 p4 = [700, 500, 3.0]
-players = [p1, p2, p3, p4]
+player_positions = [p1, p2, p3, p4]
 
 bullets = []
 
 
-class receiveThread(threading.Thread):
+class ReceiveThread(threading.Thread):
     def __init__(self, name):
         threading.Thread.__init__(self)
         self.name = name
@@ -28,7 +29,7 @@ class receiveThread(threading.Thread):
         global p2
         global p3
         global p4
-        global playerpos
+        global player_pos
         global bullets
 
         print "Listening"
@@ -46,73 +47,62 @@ class receiveThread(threading.Thread):
                     angle = data[4]
                     if p == "1":
                         if pid == p:
-                            players.remove(playerpos)
-                            playerpos = [int(x), int(y), float(angle)]
-                            players.append(playerpos)
+                            player_positions.remove(player_pos)
+                            player_pos = [int(x), int(y), float(angle)]
+                            player_positions.append(player_pos)
                         else:
-                            players.remove(p1)
+                            player_positions.remove(p1)
                             p1 = [int(x), int(y), float(angle)]
-                            players.append(p1)
+                            player_positions.append(p1)
                     elif p == "2":
                         if pid == p:
-                            players.remove(playerpos)
-                            playerpos = [int(x), int(y), float(angle)]
-                            players.append(playerpos)
+                            player_positions.remove(player_pos)
+                            player_pos = [int(x), int(y), float(angle)]
+                            player_positions.append(player_pos)
                         else:
-                            players.remove(p2)
+                            player_positions.remove(p2)
                             p2 = [int(x), int(y), float(angle)]
-                            players.append(p2)
+                            player_positions.append(p2)
                     elif p == "3":
                         if pid == p:
-                            players.remove(playerpos)
-                            playerpos = [int(x), int(y), float(angle)]
-                            players.append(playerpos)
+                            player_positions.remove(player_pos)
+                            player_pos = [int(x), int(y), float(angle)]
+                            player_positions.append(player_pos)
                         else:
-                            players.remove(p3)
+                            player_positions.remove(p3)
                             p3 = [int(x), int(y), float(angle)]
-                            players.append(p3)
+                            player_positions.append(p3)
                     elif p == "4":
                         if pid == p:
-                            players.remove(playerpos)
-                            playerpos = [int(x), int(y), float(angle)]
-                            players.append(playerpos)
+                            player_positions.remove(player_pos)
+                            player_pos = [int(x), int(y), float(angle)]
+                            player_positions.append(player_pos)
                         else:
-                            players.remove(p4)
+                            player_positions.remove(p4)
                             p4 = [int(x), int(y), float(angle)]
-                            players.append(p4)            # get_player_pos()
+                            player_positions.append(p4)
                 elif code == "B":
-                    if data[1] != "]":
-                        b = data[1][1:-1]
-                        b = b.split("#")
+                    if data[1] != "[]":
+                        bullets_data = data[1][1:-1]
+                        bullets_data = bullets_data.split("#")
                         bullets = []
-                        for bu in b:
-                            bu = bu[1:-1]
-                            bu = bu.split("$")
-                            bullets.append([str(bu[0]), float(bu[1]), int(bu[2]), int(bu[3])])
-                            # print bullets
+                        for bullet_data in bullets_data:
+                            bullet_data = bullet_data[1:-1]
+                            bullet_data = bullet_data.split("$")
+                            bullets.append(
+                                [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
+                            )
 
-            except Exception as e:
-                print e.message
+            except Exception as error:
+                print error.message
                 pygame.quit()
                 exit(0)
-def initialConnect():
-    pass
-#
-# class sendThread(threading.Thread):
-#     def __init__(self, name):
-#         threading.Thread.__init__(self)
-#         self.name = name
-#         initialConnect()
-#     def run(self):
-#         print "Starting connection"
-#         connection()
-#         print "Ending connection"
-
-# connectionThread = sendThread("1")
-lThread = receiveThread("1")
 
 
-def initialConnect():
+lThread = ReceiveThread("1")
+
+
+def initial_connect():
     global pid
     global lThread
 
@@ -122,9 +112,8 @@ def initialConnect():
     try:
         pid = data.split("#")[1]
         lThread.start()
-        # lThread.run()
-    except Exception as e:
-        print e.message
+    except Exception as error:
+        print error.message
         print "You can't connect the lobby right now"
         disconnect()
         my_socket.close()
@@ -132,21 +121,14 @@ def initialConnect():
         exit(0)
 
 
-
-# def connection():
-#     get_player_pos()
-
-
 def send_player_pos():
     s = ""
     # Send Player coordinates
-    for playerp in players:
-        if playerp is playerpos:
-            for co in playerp:
+    for player_position in player_positions:
+        if player_position is player_pos:
+            for co in player_position:
                 s += str(co) + ","
     my_socket.sendto("1" + str(pid) + s[:-1], s_host)
-    # (data, addr) = my_socket.recvfrom(1024)
-    # print "The server sent: " + data
 
 
 def send_player_keys():
@@ -157,116 +139,25 @@ def send_player_keys():
     my_socket.sendto("2" + str(pid) + s[:-1], s_host)
 
 
-def send_bullet(bullet):
+def send_bullet(bullet_info):
     s = ""
-    for n in bullet:
+    for n in bullet_info:
         s += str(n) + ","
 
     my_socket.sendto("40" + s[:-1], s_host)
 
-def delete_bullet(bullet):
+
+def delete_bullet(bullet_info):
     s = ""
-    for n in bullet:
+    for n in bullet_info:
         s += str(n) + ","
     my_socket.sendto("50" + s[:-1], s_host)
 
-def get_player_pos():
-    global playerpos
-    global oplayerspos
-    global angle
-    global oplayerangle
-
-    oplayerspos = []
-    oplayerangle = []
-
-    # my_socket.sendto("3" + str(pid), s_host)
-    (data, addr) = my_socket.recvfrom(1024)
-    #print "The server sent: " + data
-    pos = data.split(',')
-    playerpos = [int(pos[0]), int(pos[1]), float(pos[2])]
-
-    if pid == "1":
-        my_socket.sendto("32", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("33", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("34", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-    elif pid == "2":
-        my_socket.sendto("31", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("33", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("34", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-    elif pid == "3":
-        my_socket.sendto("31", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("32", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("34", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-    elif pid == "4":
-        my_socket.sendto("31", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("32", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        oplayerangle.append(float(pos[2]))
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
-        my_socket.sendto("33", s_host)
-        (data, addr) = my_socket.recvfrom(1024)
-        #print "The server sent: " + data
-        pos = data.split(',')
-        oplayerspos.append([int(pos[0]), int(pos[1])])
-        oplayerangle.append(float(pos[2]))
 
 def disconnect():
     my_socket.sendto("99", s_host)
 
-#2 Initialize the game
+
 pygame.init()
 pygame.mixer.init()
 width, height = 800, 600
@@ -274,112 +165,71 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Top Down Shooter")
 flags = screen.get_flags()
 keys = [False, False, False, False]
-arrow_speed = 10
+bullet_speed = 10
 player_speed = 6
 clock = pygame.time.Clock()
 frame = 0
 
-#3 Load images
-player = pygame.image.load('player.png') # 62 41
-player = pygame.transform.scale(player, (62, 41))
-arrow = pygame.image.load('bullet1.png')
-arrow = pygame.transform.scale(arrow, (14, 6))
-background = pygame.image.load('bg1.jpg')
-background = pygame.transform.scale(background, (width, height))
-badguys = []
+player_img = pygame.image.load('player.png')
+player_img = pygame.transform.scale(player_img, (62, 41))
+bullet_img = pygame.image.load('bullet1.png')
+bullet_img = pygame.transform.scale(bullet_img, (14, 6))
+background_img = pygame.image.load('bg1.jpg')
+background_img = pygame.transform.scale(background_img, (width, height))
+bad_guys = []
 
-# connectionThread.start()
-initialConnect()
+initial_connect()
 
 if pid == "1":
-    playerpos = [p1[0], p1[1], p1[2]]
-    players.remove(p1)
-    players.append(playerpos)
+    player_pos = [p1[0], p1[1], p1[2]]
+    player_positions.remove(p1)
+    player_positions.append(player_pos)
 elif pid == "2":
-    playerpos = [p2[0], p2[1], p2[2]]
-    players.remove(p2)
-    players.append(playerpos)
+    player_pos = [p2[0], p2[1], p2[2]]
+    player_positions.remove(p2)
+    player_positions.append(player_pos)
 elif pid == "3":
-    playerpos = [p3[0], p3[1], p3[2]]
-    players.remove(p3)
-    players.append(playerpos)
+    player_pos = [p3[0], p3[1], p3[2]]
+    player_positions.remove(p3)
+    player_positions.append(player_pos)
 elif pid == "4":
-    playerpos = [p4[0], p4[1], p4[2]]
-    players.remove(p4)
-    players.append(playerpos)
+    player_pos = [p4[0], p4[1], p4[2]]
+    player_positions.remove(p4)
+    player_positions.append(player_pos)
 
 oplayerspos = []
 oplayerangle = []
 arrows = []
 
-#4 Keep looping through
 running = 1
 exitcode = 0
 while running:
-    #5 Clear the screen before drawing it agains
-    #screen.fill((255, 255, 255))
     try:
-        screen.blit(background, (0, 0))
+        screen.blit(background_img, (0, 0))
     except Exception as e:
         print e.message
         disconnect()
         my_socket.close()
         exit(0)
-    #6.1 Set player position and rotation
-    # position = pygame.mouse.get_pos()
-    # playerpos[2] = math.atan2(position[1] - (playerpos[1] + 31), position[0] - (playerpos[0] + 20))
-    # playerrot = pygame.transform.rotate(player, 360-playerpos[2] * 57.29)
-    # playerpos1 = (playerpos[0] - playerrot.get_rect().width / 2, playerpos[1] - playerrot.get_rect().height / 2)
-    # screen.blit(playerrot, playerpos1)
-    #
-    # # for pos in oplayerspos:
-    # #     oplayerrot = pygame.transform.rotate(player, 360-oplayerangle[i] * 57.29)
-    # #     oplayerpos1 = (pos[0] - oplayerrot.get_rect().width / 2, pos[1] - oplayerrot.get_rect().height / 2)
-    # #     screen.blit(oplayerrot, oplayerpos1)
-    # #     i += 1
-    # playerrot = pygame.transform.rotate(player, 360 - p2[2] * 57.29)
-    # playerpos1 = (p2[0] - playerrot.get_rect().width / 2, p2[1] - playerrot.get_rect().height / 2)
-    # screen.blit(playerrot, playerpos1)
-    #
-    # playerrot = pygame.transform.rotate(player, 360 - p3[2] * 57.29)
-    # playerpos1 = (p3[0] - playerrot.get_rect().width / 2, p3[1] - playerrot.get_rect().height / 2)
-    # screen.blit(playerrot, playerpos1)
-    #
-    # playerrot = pygame.transform.rotate(player, 360 - p4[2] * 57.29)
-    # playerpos1 = (p4[0] - playerrot.get_rect().width / 2, p4[1] - playerrot.get_rect().height / 2)
-    # screen.blit(playerrot, playerpos1)
-    badguys = []
-    for playerp in players:
-        if playerp is playerpos:
+    bad_guys = []
+    for playerp in player_positions:
+        if playerp is player_pos:
             position = pygame.mouse.get_pos()
             playerp[2] = math.atan2(position[1] - (playerp[1] + 31), position[0] - (playerp[0] + 20))
-            playerrot = pygame.transform.rotate(player, 360 - playerp[2] * 57.29)
+            playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
             screen.blit(playerrot, playerpos1)
         else:
-            playerrot = pygame.transform.rotate(player, 360 - playerp[2] * 57.29)
+            playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
             screen.blit(playerrot, playerpos1)
-            badguys.append(screen.blit(playerrot, playerpos1))
-
-    # for bullet in arrows:
-    #     index = 0
-    #     velx = math.cos(bullet[0]) * arrow_speed
-    #     vely = math.sin(bullet[0]) * arrow_speed
-    #     bullet[1] += velx
-    #     bullet[2] += vely
-    #     if bullet[1] < -64 or bullet[1] > width or bullet[2] < -64 or bullet[2] > height:
-    #         arrows.pop(index)
-    #     index += 1
-    #     for projectile in arrows:
-    #         arrow1 = pygame.transform.rotate(arrow, 360-projectile[0]*57.29)
-    #         screen.blit(arrow1, (projectile[1], projectile[2]))
+            bad_guys.append(screen.blit(playerrot, playerpos1))
 
     for bullet in bullets:
         delete_bullet(bullet)
         index = 0
-        velx = math.cos(bullet[1]) * arrow_speed
-        vely = math.sin(bullet[1]) * arrow_speed
+        velx = math.cos(bullet[1]) * bullet_speed
+        vely = math.sin(bullet[1]) * bullet_speed
         bullet[2] += int(velx)
         bullet[3] += int(vely)
         if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
@@ -388,26 +238,23 @@ while running:
             send_bullet(bullet)
         index += 1
         for projectile in bullets:
-            print len(projectile), projectile
-            arrow1 = pygame.transform.rotate(arrow, 360-projectile[1]*57.29)
-            screen.blit(arrow1, (projectile[2], projectile[3]))
+            bullet1 = pygame.transform.rotate(bullet_img, 360 - projectile[1] * 57.29)
+            screen.blit(bullet1, (projectile[2], projectile[3]))
 
-    for badguy in badguys:
+    for badguy in bad_guys:
         index1 = 0
-        for bullet in arrows:
-            bullrect = pygame.Rect(arrow.get_rect())
+        for bullet in bullets:
+            bullrect = pygame.Rect(bullet_img.get_rect())
             bullrect.left = bullet[1]
             bullrect.top = bullet[2]
             if badguy.colliderect(bullrect):
                 # badguys.pop(index)
                 print "HIT"
-                arrows.pop(index1)
+                bullets.pop(index1)
             index1 += 1
 
-    #7 Update the screen
     pygame.display.flip()
 
-    #8 Loop through the events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             disconnect()
@@ -424,10 +271,8 @@ while running:
             elif event.key == K_d:
                 keys[3] = True
             elif event.key == K_f:
-                # toggle fullscreen by pressing F key.
-                if flags & FULLSCREEN == False:
-                    flags |= FULLSCREEN
-                    pygame.display.set_mode((width, height), flags)
+                flags ^= FULLSCREEN
+                pygame.display.set_mode((width, height), flags)
         if event.type == pygame.KEYUP:
             if event.key == K_w:
                 keys[0] = False
@@ -439,35 +284,25 @@ while running:
                 keys[3] = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             position = pygame.mouse.get_pos()
-            # arrows.append([math.atan2(position[1] - (playerpos[1] + 31), position[0] - (playerpos[0] + 20)), playerpos[0] + 31, playerpos1[1] + 20])
-            b = [pid, math.atan2(position[1] - (playerpos[1] + 31), position[0] - (playerpos[0] + 20)), playerpos[0] + 31, playerpos1[1] + 20]
-            send_bullet(b)
-    #9 Move player
+            b = [pid,
+                 math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
+                 player_pos[0] + 31,
+                 player_pos[1] + 20]
+            bc = [bullet for bullet in bullets if bullet[0] == pid]
+            if len(bc) <= 3:
+                send_bullet(b)
+
     if keys[0]:
-        playerpos[1] -= player_speed
+        player_pos[1] -= player_speed
         send_player_pos()
     elif keys[2]:
-        playerpos[1] += player_speed
+        player_pos[1] += player_speed
         send_player_pos()
     if keys[1]:
-        playerpos[0] -= player_speed
+        player_pos[0] -= player_speed
         send_player_pos()
     elif keys[3]:
-        playerpos[0] += player_speed
+        player_pos[0] += player_speed
         send_player_pos()
 
     clock.tick(30)
-    # frame += 1
-    # if frame == 30:
-    #     print bullets
-    #     frame = 0
-
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            disconnect()
-            my_socket.close()
-            pygame.quit()
-            exit(0)
-    pygame.display.flip()
