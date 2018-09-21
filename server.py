@@ -178,6 +178,30 @@ while True:
                 print "B," + s
                 server_socket.sendto("B," + s, addr)
 
+        elif code == "61":
+            data = msg[2:]
+            p1[2] = data
+            for addr in addrs:
+                server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+
+        elif code == "62":
+            data = msg[2:]
+            p2[2] = data
+            for addr in addrs:
+                server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+
+        elif code == "63":
+            data = msg[2:]
+            p3[2] = data
+            for addr in addrs:
+                server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+
+        elif code == "64":
+            data = msg[2:]
+            p4[2] = data
+            for addr in addrs:
+                server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+
         elif code == "99":
             if players["1"] == addr:
                 players["1"] = ""

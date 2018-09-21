@@ -17,6 +17,9 @@ p4 = [700, 500, 3.0]
 player_positions = [p1, p2, p3, p4]
 
 bullets = []
+player_pos = []
+
+mouse = []
 
 
 class ReceiveThread(threading.Thread):
@@ -29,6 +32,7 @@ class ReceiveThread(threading.Thread):
         global p2
         global p3
         global p4
+        global player_positions
         global player_pos
         global bullets
 
@@ -95,6 +99,7 @@ class ReceiveThread(threading.Thread):
 
             except Exception as error:
                 print error.message
+                print "Thread ERR"
                 pygame.quit()
                 exit(0)
 
@@ -145,6 +150,10 @@ def send_bullet(bullet_info):
         s += str(n) + ","
 
     my_socket.sendto("40" + s[:-1], s_host)
+
+
+def send_mouse(angle):
+    my_socket.sendto("6" + pid + str(angle), s_host)
 
 
 def delete_bullet(bullet_info):
@@ -219,6 +228,9 @@ while running:
             playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
             screen.blit(playerrot, playerpos1)
+            if position != mouse:
+                send_mouse(playerp[2])
+                mouse = position
         else:
             playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
@@ -226,17 +238,18 @@ while running:
             bad_guys.append(screen.blit(playerrot, playerpos1))
 
     for bullet in bullets:
-        delete_bullet(bullet)
-        index = 0
-        velx = math.cos(bullet[1]) * bullet_speed
-        vely = math.sin(bullet[1]) * bullet_speed
-        bullet[2] += int(velx)
-        bullet[3] += int(vely)
-        if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
-            bullets.pop(index)
-        else:
-            send_bullet(bullet)
-        index += 1
+        if bullet[0] == pid:
+            delete_bullet(bullet)
+            index = 0
+            velx = math.cos(bullet[1]) * bullet_speed
+            vely = math.sin(bullet[1]) * bullet_speed
+            bullet[2] += int(velx)
+            bullet[3] += int(vely)
+            if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
+                bullets.pop(index)
+            else:
+                send_bullet(bullet)
+            index += 1
         for projectile in bullets:
             bullet1 = pygame.transform.rotate(bullet_img, 360 - projectile[1] * 57.29)
             screen.blit(bullet1, (projectile[2], projectile[3]))
@@ -245,12 +258,15 @@ while running:
         index1 = 0
         for bullet in bullets:
             bullrect = pygame.Rect(bullet_img.get_rect())
-            bullrect.left = bullet[1]
-            bullrect.top = bullet[2]
+            bullrect.left = bullet[2]
+            bullrect.top = bullet[3]
             if badguy.colliderect(bullrect):
                 # badguys.pop(index)
                 print "HIT"
                 bullets.pop(index1)
+
+                # delete_bullet(bullet)
+                break
             index1 += 1
 
     pygame.display.flip()
