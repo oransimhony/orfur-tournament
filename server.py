@@ -83,7 +83,6 @@ while True:
             for i in xrange(len(data) - 1):
                 p1[i] = int(data[i])
             p1[2] = data[2]
-            server_socket.sendto("OK. " + "\tP1: " + str(p1), addr)
             for addr in addrs:
                 server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
         elif code == "12":
@@ -94,7 +93,6 @@ while True:
             for i in xrange(len(data) - 1):
                 p2[i] = int(data[i])
             p2[2] = data[2]
-            server_socket.sendto("OK. " + "\tP2: " + str(p2), addr)
             for addr in addrs:
                 server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
         elif code == "13":
@@ -105,7 +103,6 @@ while True:
             for i in xrange(len(data) - 1):
                 p3[i] = int(data[i])
             p3[2] = data[2]
-            server_socket.sendto("OK. " + "\tP3: " + str(p3), addr)
             for addr in addrs:
                 server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
         elif code == "14":
@@ -116,7 +113,6 @@ while True:
             for i in xrange(len(data) - 1):
                 p4[i] = int(data[i])
             p4[2] = data[2]
-            server_socket.sendto("OK. " + "\tP4: " + str(p4), addr)
             for addr in addrs:
                 server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
         elif code == "20":
@@ -126,7 +122,6 @@ while True:
             data = data.split(',')
             for i in xrange(len(data)):
                 keys[i] = True if data[i] == "True" else False
-            server_socket.sendto("OK. " + "\tKEYS: " + str(keys), addr)
 
         elif code == "31":
             print 'Sending pos#1'
@@ -186,20 +181,24 @@ while True:
         elif code == "99":
             if players["1"] == addr:
                 players["1"] = ""
+                for address in addrs:
+                    server_socket.sendto("Player #1 Disconnected", address)
                 addrs.remove(addr)
-                server_socket.sendto("Disconnected player #1", addr)
             elif players["2"] == addr:
                 players["2"] = ""
+                for address in addrs:
+                    server_socket.sendto("Player #2 Disconnected", address)
                 addrs.remove(addr)
-                server_socket.sendto("Disconnected player #2", addr)
             elif players["3"] == addr:
                 players["3"] = ""
+                for address in addrs:
+                    server_socket.sendto("Player #3 Disconnected", address)
                 addrs.remove(addr)
-                server_socket.sendto("Disconnected player #3", addr)
             elif players["4"] == addr:
                 players["4"] = ""
+                for address in addrs:
+                    server_socket.sendto("Player #4 Disconnected", address)
                 addrs.remove(addr)
-                server_socket.sendto("Disconnected player #4", addr)
 
         else:
             server_socket.sendto("Wrong code. " + code, addr)

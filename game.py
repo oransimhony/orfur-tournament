@@ -36,7 +36,7 @@ class ReceiveThread(threading.Thread):
         while True:
             try:
                 (data, addr) = my_socket.recvfrom(8192)
-                # print "The server sent: " + data
+                print "The server sent: " + data
                 data = data.split(",")
                 code = data[0]
 
