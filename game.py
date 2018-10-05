@@ -16,6 +16,11 @@ p3 = [100, 500, 0.0]
 p4 = [700, 500, 3.0]
 player_positions = [p1, p2, p3, p4]
 
+p1_health = 3
+p2_health = 3
+p3_health = 3
+p4_health = 3
+
 bullets = []
 player_pos = []
 
@@ -174,18 +179,25 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Top Down Shooter")
 flags = screen.get_flags()
 keys = [False, False, False, False]
-bullet_speed = 10
+bullet_speed = 12
 player_speed = 6
 clock = pygame.time.Clock()
 frame = 0
 
 player_img = pygame.image.load('player.png')
 player_img = pygame.transform.scale(player_img, (62, 41))
-bullet_img = pygame.image.load('bullet1.png')
-bullet_img = pygame.transform.scale(bullet_img, (14, 6))
+# bullet_img = pygame.image.load('bullet1.png')
+# bullet_img = pygame.transform.scale(bullet_img, (14, 6))
+bullet_img = pygame.image.load('bullet.png').convert()
+bullet_img.set_colorkey((255, 255, 255))
+bullet_img = pygame.transform.scale(bullet_img, (13, 5))
 background_img = pygame.image.load('bg1.jpg')
 background_img = pygame.transform.scale(background_img, (width, height))
 bad_guys = []
+
+ammo = pygame.transform.rotate(bullet_img, 90)
+ammo = pygame.transform.scale2x(ammo)
+shot = 0
 
 initial_connect()
 
@@ -221,6 +233,7 @@ while running:
         my_socket.close()
         exit(0)
     bad_guys = []
+
     for playerp in player_positions:
         if playerp is player_pos:
             position = pygame.mouse.get_pos()
@@ -247,12 +260,16 @@ while running:
             bullet[3] += int(vely)
             if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
                 bullets.pop(index)
+                shot -= 1
             else:
                 send_bullet(bullet)
             index += 1
         for projectile in bullets:
             bullet1 = pygame.transform.rotate(bullet_img, 360 - projectile[1] * 57.29)
             screen.blit(bullet1, (projectile[2], projectile[3]))
+
+    for i in xrange(5 - shot):
+        screen.blit(ammo, (20 + i * 15, 560))
 
     for badguy in bad_guys:
         index1 = 0
@@ -264,7 +281,7 @@ while running:
                 # badguys.pop(index)
                 print "HIT"
                 bullets.pop(index1)
-
+                shot -= 1
                 # delete_bullet(bullet)
                 break
             index1 += 1
@@ -307,18 +324,21 @@ while running:
             bc = [bullet for bullet in bullets if bullet[0] == pid]
             if len(bc) <= 3:
                 send_bullet(b)
+                shot += 1
 
+    moved = False
     if keys[0]:
         player_pos[1] -= player_speed
-        send_player_pos()
+        moved = True
     elif keys[2]:
         player_pos[1] += player_speed
-        send_player_pos()
+        moved = True
     if keys[1]:
         player_pos[0] -= player_speed
-        send_player_pos()
+        moved = True
     elif keys[3]:
         player_pos[0] += player_speed
+        moved = True
+    if moved:
         send_player_pos()
-
     clock.tick(30)
