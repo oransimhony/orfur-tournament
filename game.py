@@ -7,7 +7,7 @@ from pygame.locals import *
 
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-s_host = ("127.0.0.1", 8888)
+s_host = ("77.139.180.35", 8888)
 pid = 0
 
 p1 = [100, 100, 0.0]
@@ -16,10 +16,10 @@ p3 = [100, 500, 0.0]
 p4 = [700, 500, 3.0]
 player_positions = [p1, p2, p3, p4]
 
-p1_health = 3
-p2_health = 3
-p3_health = 3
-p4_health = 3
+p1_health = 30
+p2_health = 30
+p3_health = 30
+p4_health = 30
 players_health = [p1_health, p2_health, p3_health, p4_health]
 
 bullets = []
@@ -107,6 +107,8 @@ class ReceiveThread(threading.Thread):
                     p = int(data[1])
                     hp = int(data[2])
                     players_health[p - 1] = hp
+                    if players_health[p - 1] <= 0:
+                        player_positions[p - 1] = None
                     # if p == 1:
                     #     p1_health = hp
                     # elif p == 2:
@@ -171,8 +173,8 @@ def send_bullet(bullet_info):
     my_socket.sendto("40" + s[:-1], s_host)
 
 
-# def send_mouse(angle):
-#     my_socket.sendto("8" + pid + str(angle), s_host)
+def send_mouse(angle):
+    my_socket.sendto("6" + pid + str(angle), s_host)
 
 
 def delete_bullet(bullet_info):
@@ -185,10 +187,9 @@ def delete_bullet(bullet_info):
 def disconnect():
     my_socket.sendto("99", s_host)
 
-def enemy_hit(x, y):
-    for pos in player_positions:
-        print pos, x, y
 
+def enemy_hit(enemy_id):
+    my_socket.sendto("7" + str(enemy_id), s_host)
 
 pygame.init()
 pygame.mixer.init()
@@ -250,26 +251,30 @@ while running:
         disconnect()
         my_socket.close()
         exit(0)
-    bad_guys = []
+    new_bad_guys = []
     id = 1
     for playerp in player_positions:
         if playerp is player_pos:
-            position = pygame.mouse.get_pos()
-            playerp[2] = math.atan2(position[1] - (playerp[1] + 31), position[0] - (playerp[0] + 20))
-            playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
-            playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
-            screen.blit(playerrot, playerpos1)
-            if position != mouse:
-                # send_mouse(playerp[2])
-                mouse = position
+            if playerp is not None:
+                position = pygame.mouse.get_pos()
+                playerp[2] = math.atan2(position[1] - (playerp[1] + 31), position[0] - (playerp[0] + 20))
+                playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
+                playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
+                screen.blit(playerrot, playerpos1)
+                if position != mouse:
+                    send_mouse(playerp[2])
+                    mouse = position
             id += 1
         else:
-            playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
-            playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
-            screen.blit(playerrot, playerpos1)
-            bad_guys.append(screen.blit(playerrot, playerpos1))
+            if playerp is not None:
+                playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
+                playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
+                screen.blit(playerrot, playerpos1)
+                new_bad_guys.append([screen.blit(playerrot, playerpos1), id])
+            else:
+                new_bad_guys.append(bad_guys[id - 2])
             id += 1
-
+    bad_guys = new_bad_guys
     for bullet in bullets:
         if bullet[0] == pid:
             delete_bullet(bullet)
@@ -291,17 +296,17 @@ while running:
     for i in xrange(5 - shot):
         screen.blit(ammo, (20 + i * 15, 560))
 
-    for badguy in bad_guys:
+    for badguy, id in bad_guys:
         index1 = 0
         for bullet in bullets:
             bullrect = pygame.Rect(bullet_img.get_rect())
             bullrect.left = bullet[2]
             bullrect.top = bullet[3]
             if badguy.colliderect(bullrect):
-                bad_guys.pop(index)
+                # bad_guys.pop(index)
                 print "HIT"
                 players_health[1] -= 1
-                # print enemy_hit(bullet[2], bullet[3])
+                print enemy_hit(id)
                 # print player_positions
                 bullets.pop(index1)
                 index1 -= 1

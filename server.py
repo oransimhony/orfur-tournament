@@ -10,10 +10,10 @@ p2 = [700, 100, 3.0]
 p3 = [100, 500, 0.0]
 p4 = [700, 500, 3.0]
 
-p1_health = 3
-p2_health = 3
-p3_health = 3
-p4_health = 3
+p1_health = 30
+p2_health = 30
+p3_health = 30
+p4_health = 30
 
 bullets = []
 
@@ -189,30 +189,46 @@ while True:
         elif code == "61":
             data = msg[2:]
             p1[2] = data
-            p1_health -= 1
-            for addr in addrs:
-                server_socket.sendto("hp,1," + str(p1_health), addr)
 
         elif code == "62":
             data = msg[2:]
             p2[2] = data
-            p2_health -= 1
-            for addr in addrs:
-                server_socket.sendto("hp,2," + str(p2_health), addr)
 
         elif code == "63":
             data = msg[2:]
             p3[2] = data
-            p3_health -= 1
-            for addr in addrs:
-                server_socket.sendto("hp,3," + str(p3_health), addr)
 
         elif code == "64":
             data = msg[2:]
             p4[2] = data
+
+        elif code == "71":
+            data = msg[2:]
+            p1_health -= 1
+            for addr in addrs:
+                server_socket.sendto("hp,1," + str(p1_health), addr)
+
+        elif code == "72":
+            data = msg[2:]
+            p2_health -= 1
+            for addr in addrs:
+                server_socket.sendto("hp,2," + str(p2_health), addr)
+
+        elif code == "73":
+            data = msg[2:]
+            p3_health -= 1
+            for addr in addrs:
+                server_socket.sendto("hp,3," + str(p3_health), addr)
+
+        elif code == "74":
+            data = msg[2:]
             p4_health -= 1
             for addr in addrs:
                 server_socket.sendto("hp,4," + str(p4_health), addr)
+
+        elif code == "81":
+            data = msg[2:]
+
 
         elif code == "99":
             if players["1"] == addr:
