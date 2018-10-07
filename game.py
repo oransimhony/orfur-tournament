@@ -20,6 +20,7 @@ p1_health = 3
 p2_health = 3
 p3_health = 3
 p4_health = 3
+players_health = [p1_health, p2_health, p3_health, p4_health]
 
 bullets = []
 player_pos = []
@@ -58,38 +59,38 @@ class ReceiveThread(threading.Thread):
                         if pid == p:
                             player_positions.remove(player_pos)
                             player_pos = [int(x), int(y), float(angle)]
-                            player_positions.append(player_pos)
+                            player_positions.insert(int(p) - 1, player_pos)
                         else:
                             player_positions.remove(p1)
                             p1 = [int(x), int(y), float(angle)]
-                            player_positions.append(p1)
+                            player_positions.insert(int(p) - 1, p1)
                     elif p == "2":
                         if pid == p:
                             player_positions.remove(player_pos)
                             player_pos = [int(x), int(y), float(angle)]
-                            player_positions.append(player_pos)
+                            player_positions.insert(int(p) - 1, player_pos)
                         else:
                             player_positions.remove(p2)
                             p2 = [int(x), int(y), float(angle)]
-                            player_positions.append(p2)
+                            player_positions.insert(int(p) - 1, p2)
                     elif p == "3":
                         if pid == p:
                             player_positions.remove(player_pos)
                             player_pos = [int(x), int(y), float(angle)]
-                            player_positions.append(player_pos)
+                            player_positions.insert(int(p) - 1, player_pos)
                         else:
                             player_positions.remove(p3)
                             p3 = [int(x), int(y), float(angle)]
-                            player_positions.append(p3)
+                            player_positions.insert(int(p) - 1, p3)
                     elif p == "4":
                         if pid == p:
                             player_positions.remove(player_pos)
                             player_pos = [int(x), int(y), float(angle)]
-                            player_positions.append(player_pos)
+                            player_positions.insert(int(p) - 1, player_pos)
                         else:
                             player_positions.remove(p4)
                             p4 = [int(x), int(y), float(angle)]
-                            player_positions.append(p4)
+                            player_positions.insert(int(p) - 1, p4)
                 elif code == "B":
                     if data[1] != "[]":
                         bullets_data = data[1][1:-1]
@@ -101,6 +102,19 @@ class ReceiveThread(threading.Thread):
                             bullets.append(
                                 [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
                             )
+
+                elif code == "hp":
+                    p = int(data[1])
+                    hp = int(data[2])
+                    players_health[p - 1] = hp
+                    # if p == 1:
+                    #     p1_health = hp
+                    # elif p == 2:
+                    #     p2_health = hp
+                    # elif p == 3:
+                    #     p3_health = hp
+                    # elif p == 4:
+                    #     p4_health = hp
 
             except Exception as error:
                 print error.message
@@ -157,8 +171,8 @@ def send_bullet(bullet_info):
     my_socket.sendto("40" + s[:-1], s_host)
 
 
-def send_mouse(angle):
-    my_socket.sendto("6" + pid + str(angle), s_host)
+# def send_mouse(angle):
+#     my_socket.sendto("8" + pid + str(angle), s_host)
 
 
 def delete_bullet(bullet_info):
@@ -170,6 +184,10 @@ def delete_bullet(bullet_info):
 
 def disconnect():
     my_socket.sendto("99", s_host)
+
+def enemy_hit(x, y):
+    for pos in player_positions:
+        print pos, x, y
 
 
 pygame.init()
@@ -233,7 +251,7 @@ while running:
         my_socket.close()
         exit(0)
     bad_guys = []
-
+    id = 1
     for playerp in player_positions:
         if playerp is player_pos:
             position = pygame.mouse.get_pos()
@@ -242,13 +260,15 @@ while running:
             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
             screen.blit(playerrot, playerpos1)
             if position != mouse:
-                send_mouse(playerp[2])
+                # send_mouse(playerp[2])
                 mouse = position
+            id += 1
         else:
             playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
             screen.blit(playerrot, playerpos1)
             bad_guys.append(screen.blit(playerrot, playerpos1))
+            id += 1
 
     for bullet in bullets:
         if bullet[0] == pid:
@@ -260,7 +280,7 @@ while running:
             bullet[3] += int(vely)
             if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
                 bullets.pop(index)
-                shot -= 1
+                shot -= 1 if shot > 0 else 0
             else:
                 send_bullet(bullet)
             index += 1
@@ -278,11 +298,15 @@ while running:
             bullrect.left = bullet[2]
             bullrect.top = bullet[3]
             if badguy.colliderect(bullrect):
-                # badguys.pop(index)
+                bad_guys.pop(index)
                 print "HIT"
+                players_health[1] -= 1
+                # print enemy_hit(bullet[2], bullet[3])
+                # print player_positions
                 bullets.pop(index1)
-                shot -= 1
-                # delete_bullet(bullet)
+                index1 -= 1
+                shot -= 1 if shot > 0 else 0
+                delete_bullet(bullet)
                 break
             index1 += 1
 
