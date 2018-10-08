@@ -1,6 +1,7 @@
 import math
 import socket
 import threading
+import random
 
 import pygame
 from pygame.locals import *
@@ -29,6 +30,8 @@ player_pos = []
 # player_rect = Rect(0, 0, 0, 0)
 
 mouse = []
+
+messages = []
 
 
 class ReceiveThread(threading.Thread):
@@ -112,15 +115,39 @@ class ReceiveThread(threading.Thread):
                                 [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
                             )
 
+                elif code == "T":
+                    global messages
+                    text = data[1]
+                    x = int(data[2])
+                    y = int(data[3])
+                    messages.append(make_text(text, x, y, (255, 230, 153)))
+
                 elif code == "hp":
                     global dead
+                    global health
                     p = int(data[1])
                     hp = int(data[2])
+                    hitter = data[3]
                     players_health[p - 1] = hp
+                    if int(p) == int(pid):
+                        health = hp
                     if players_health[p - 1] <= 0:
                         player_positions[p - 1] = None
                         if int(p) == int(pid):
                             dead = True
+                        alive = 0
+                        for pos in player_positions:
+                            if pos is not None:
+                                alive += 1
+                        if alive == 1:
+                            player_won_id = 1
+                            for pos in player_positions:
+                                if pos is not None:
+                                    won(player_won_id)
+                                    break
+                                player_won_id += 1
+                        killed(hitter, str(p))
+
                     # if p == 1:
                     #     p1_health = hp
                     # elif p == 2:
@@ -207,8 +234,39 @@ def disconnect():
     my_socket.sendto("99", s_host)
 
 
-def enemy_hit(enemy_id):
-    my_socket.sendto("7" + str(enemy_id), s_host)
+def enemy_hit(enemy_id, hitter):
+    if int(hitter) == int(pid):
+        my_socket.sendto("7" + str(enemy_id) + "," + pid, s_host)
+
+
+def killed(killer, killed_p):
+    if int(killer) == int(pid):
+        my_socket.sendto("2" + str(killed_p) + "," + killer, s_host)
+
+
+def won(player_won):
+    if int(player_won) == int(pid):
+        my_socket.sendto("20," + "Player #" + str(player_won) + " won this round,5,400", s_host)
+        my_socket.sendto("20," + "Congratulations!,5,400", s_host)
+
+
+def make_text(text_message, x, y, text_color):
+    text = font.render(text_message, True, text_color)
+    text_rect = text.get_rect()
+    text_rect.left = x
+    text_rect.top = y
+    offset_messages()
+    if "Congrat" in text_message or "won" in text_message:
+        return [text, text_rect, time_to_fade * 2]
+    return [text, text_rect, time_to_fade]
+
+
+def offset_messages():
+    index = 0
+    for message in messages:
+        text_rect = message[1]
+        text_rect.top -= text_space
+        index += 1
 
 pygame.init()
 pygame.mixer.init()
@@ -229,6 +287,15 @@ player_img = pygame.transform.scale(player_img, (62, 41))
 bullet_img = pygame.image.load('bullet.png').convert()
 bullet_img.set_colorkey((255, 255, 255))
 bullet_img = pygame.transform.scale(bullet_img, (13, 5))
+bg = random.randint(1, 5)
+# if bg == 1:
+#     background_img = pygame.image.load('bg1.jpg')
+# elif bg == 2:
+#     background_img = pygame.image.load('bg2.png')
+# elif bg == 3:
+#     background_img = pygame.image.load('bg3.png')
+# else:
+#     background_img = pygame.image.load('bg4.jpg')
 background_img = pygame.image.load('bg1.jpg')
 background_img = pygame.transform.scale(background_img, (width, height))
 youdied_img = pygame.image.load('youDied.jpg')
@@ -238,6 +305,13 @@ bad_guys = []
 ammo = pygame.transform.rotate(bullet_img, 90)
 ammo = pygame.transform.scale2x(ammo)
 shot = 0
+
+font = pygame.font.SysFont(None, 22)
+text_space = 25
+time_to_fade = 3000
+
+health = 30
+max_health = 30
 
 initial_connect()
 
@@ -272,16 +346,16 @@ while running:
     player_rect = screen.blit(screen, (0, 0))
     try:
         screen.blit(background_img, (0, 0))
-        if dead:
-            screen.blit(youdied_img, (0, 0))
-            time.sleep(5000)
-            print "QUITTING"
-            disconnect()
-            print "DISCONNECTED"
-            my_socket.close()
-            pygame.quit()
-            print "SOCKET AND PYGAME CLOSED"
-            exit(0)
+        # if dead:
+        #     screen.blit(youdied_img, (0, 0))
+        #     time.sleep(5000)
+        #     print "QUITTING"
+        #     disconnect()
+        #     print "DISCONNECTED"
+        #     my_socket.close()
+        #     pygame.quit()
+        #     print "SOCKET AND PYGAME CLOSED"
+        #     exit(0)
     except Exception as e:
         print "QUITTING"
         disconnect()
@@ -290,7 +364,8 @@ while running:
         pygame.quit()
         print "SOCKET AND PYGAME CLOSED"
         exit(0)
-    new_bad_guys = []
+    # new_bad_guys = []
+    players_rects = []
     id = 1
     for playerp in player_positions:
         if playerp is player_pos:
@@ -301,21 +376,26 @@ while running:
                 playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
                 playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
                 screen.blit(playerrot, playerpos1)
+                players_rects.append([screen.blit(playerrot, playerpos1), id])
                 player_rect = screen.blit(playerrot, playerpos1)
                 if position != mouse:
                     send_mouse(playerp[2])
                     mouse = position
+            else:
+                players_rects.append([None, id])
             id += 1
         else:
             if playerp is not None:
                 playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
                 playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
                 screen.blit(playerrot, playerpos1)
-                new_bad_guys.append([screen.blit(playerrot, playerpos1), id])
+                players_rects.append([screen.blit(playerrot, playerpos1), id])
+                # new_bad_guys.append([screen.blit(playerrot, playerpos1), id])
             else:
-                new_bad_guys.append(bad_guys[id - 2])
+                # new_bad_guys.append(bad_guys[id - 2])
+                players_rects.append([None, id])
             id += 1
-    bad_guys = new_bad_guys
+    # bad_guys = new_bad_guys
     # ind = 0
     # for obstacle in obstacles:
     #     pygame.draw.rect(screen, (0, 0, 0), Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[3]))
@@ -341,25 +421,55 @@ while running:
             bullet1 = pygame.transform.rotate(bullet_img, 360 - projectile[1] * 57.29)
             screen.blit(bullet1, (projectile[2], projectile[3]))
 
+    for message in messages:
+        text = message[0]
+        text_rect = message[1]
+        message[2] -= 50
+        if message[2] <= 0:
+            messages.remove(message)
+        else:
+            screen.blit(text, text_rect)
+
+    pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
+    pygame.draw.rect(screen, (255, 0, 0), (20 + int(100 * (float(health) / max_health)), 530, int(100 * (1 - (float(health) / max_health))), 20))
+    pygame.draw.rect(screen, (0, 0, 0), (20, 530, 100, 20), 5)
+
     for i in xrange(5 - shot):
         screen.blit(ammo, (20 + i * 15, 560))
 
-    for badguy, id in bad_guys:
-        for bullet in bullets:
-            bullrect = pygame.Rect(bullet_img.get_rect())
-            bullrect.left = bullet[2]
-            bullrect.top = bullet[3]
-            if badguy.colliderect(bullrect):
-                # print "HIT"
-                players_health[id - 1] -= 1
-                enemy_hit(id)
-                if bullet in bullets:
-                    bullets.remove(bullet)
-                shot -= 1 if shot > 0 else 0
-                delete_bullet(bullet)
+    # for badguy, player_id in bad_guys:
+    #     for bullet in bullets:
+    #         bullrect = pygame.Rect(bullet_img.get_rect())
+    #         bullrect.left = bullet[2]
+    #         bullrect.top = bullet[3]
+    #         if badguy.colliderect(bullrect):
+    #             # print "HIT"
+    #             if int(player_id) != int(bullet[0]) and player_positions[player_id - 1] is not None:
+    #                 players_health[player_id - 1] -= 1
+    #                 enemy_hit(player_id)
+    #                 if bullet in bullets:
+    #                     bullets.remove(bullet)
+    #                 shot -= 1 if shot > 0 else 0
+    #                 delete_bullet(bullet)
 
-    if dead:
-        screen.blit(youdied_img, (0, 0))
+    for players_rect, player_id in players_rects:
+        if players_rect is not None:
+            for bullet in bullets:
+                bullrect = pygame.Rect(bullet_img.get_rect())
+                bullrect.left = bullet[2]
+                bullrect.top = bullet[3]
+                if players_rect.colliderect(bullrect):
+                    # print "HIT"
+                    if int(player_id) != int(bullet[0]) and player_positions[player_id - 1] is not None:
+                        players_health[player_id - 1] -= 1
+                        enemy_hit(player_id, bullet[0])
+                        if bullet in bullets:
+                            bullets.remove(bullet)
+                        shot -= 1 if shot > 0 else 0
+                        delete_bullet(bullet)
+
+    # if dead:
+    #     screen.blit(youdied_img, (0, 0))
 
     pygame.display.flip()
 
