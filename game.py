@@ -26,6 +26,8 @@ players_health = [p1_health, p2_health, p3_health, p4_health]
 bullets = []
 player_pos = []
 
+# player_rect = Rect(0, 0, 0, 0)
+
 mouse = []
 
 
@@ -47,6 +49,12 @@ class ReceiveThread(threading.Thread):
         while True:
             try:
                 (data, addr) = my_socket.recvfrom(8192)
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print message
+                data, addr = "", ()
+            if data != "":
                 print "The server sent: " + data
                 data = data.split(",")
                 code = data[0]
@@ -105,12 +113,13 @@ class ReceiveThread(threading.Thread):
                             )
 
                 elif code == "hp":
+                    global dead
                     p = int(data[1])
                     hp = int(data[2])
                     players_health[p - 1] = hp
                     if players_health[p - 1] <= 0:
                         player_positions[p - 1] = None
-                        if p - 1 == pid:
+                        if int(p) == int(pid):
                             dead = True
                     # if p == 1:
                     #     p1_health = hp
@@ -121,11 +130,15 @@ class ReceiveThread(threading.Thread):
                     # elif p == 4:
                     #     p4_health = hp
 
-            except Exception as error:
-                print error.message
-                print "Thread ERR"
-                pygame.quit()
-                exit(0)
+            # except Exception as error:
+            #     global running
+            #     print error.message
+            #     print "Thread ERR"
+            #     running = False
+            #     disconnect()
+            #     my_socket.close()
+            #     pygame.quit()
+            #     exit(0)
 
 
 lThread = ReceiveThread("1")
@@ -140,10 +153,13 @@ def initial_connect():
     print "The server sent: " + data
     try:
         pid = data.split("#")[1]
+        lThread.daemon = True
         lThread.start()
     except Exception as error:
+        global running
         print error.message
         print "You can't connect the lobby right now"
+        running = False
         disconnect()
         my_socket.close()
         pygame.quit()
@@ -215,6 +231,8 @@ bullet_img.set_colorkey((255, 255, 255))
 bullet_img = pygame.transform.scale(bullet_img, (13, 5))
 background_img = pygame.image.load('bg1.jpg')
 background_img = pygame.transform.scale(background_img, (width, height))
+youdied_img = pygame.image.load('youDied.jpg')
+youdied_img = pygame.transform.scale(youdied_img, (800, 600))
 bad_guys = []
 
 ammo = pygame.transform.rotate(bullet_img, 90)
@@ -222,6 +240,9 @@ ammo = pygame.transform.scale2x(ammo)
 shot = 0
 
 initial_connect()
+
+# obstacles = [[300, 200, 50, 70], [360, 280, 50, 70]]
+# obstacles = [pygame.draw.rect(screen, (300, 200), (255, 0, 0), (50, 70)), pygame.draw.rect(screen, (150, 600), (255, 0, 0), (34, 57))]
 
 if pid == "1":
     player_pos = [p1[0], p1[1], p1[2]]
@@ -244,26 +265,43 @@ oplayerspos = []
 oplayerangle = []
 arrows = []
 
+
 running = 1
 exitcode = 0
 while running:
+    player_rect = screen.blit(screen, (0, 0))
     try:
         screen.blit(background_img, (0, 0))
+        if dead:
+            screen.blit(youdied_img, (0, 0))
+            time.sleep(5000)
+            print "QUITTING"
+            disconnect()
+            print "DISCONNECTED"
+            my_socket.close()
+            pygame.quit()
+            print "SOCKET AND PYGAME CLOSED"
+            exit(0)
     except Exception as e:
-        print e.message
+        print "QUITTING"
         disconnect()
+        print "DISCONNECTED"
         my_socket.close()
+        pygame.quit()
+        print "SOCKET AND PYGAME CLOSED"
         exit(0)
     new_bad_guys = []
     id = 1
     for playerp in player_positions:
         if playerp is player_pos:
             if playerp is not None:
+                # global player_rect
                 position = pygame.mouse.get_pos()
                 playerp[2] = math.atan2(position[1] - (playerp[1] + 31), position[0] - (playerp[0] + 20))
                 playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
                 playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
                 screen.blit(playerrot, playerpos1)
+                player_rect = screen.blit(playerrot, playerpos1)
                 if position != mouse:
                     send_mouse(playerp[2])
                     mouse = position
@@ -278,6 +316,13 @@ while running:
                 new_bad_guys.append(bad_guys[id - 2])
             id += 1
     bad_guys = new_bad_guys
+    # ind = 0
+    # for obstacle in obstacles:
+    #     pygame.draw.rect(screen, (0, 0, 0), Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[3]))
+    #     pygame.display.flip()
+    #     # screen.blit(obstacle, obstacles_coord[ind])
+    #     ind += 1
+
     for bullet in bullets:
         if bullet[0] == pid:
             delete_bullet(bullet)
@@ -305,20 +350,27 @@ while running:
             bullrect.left = bullet[2]
             bullrect.top = bullet[3]
             if badguy.colliderect(bullrect):
-                print "HIT"
+                # print "HIT"
                 players_health[id - 1] -= 1
                 enemy_hit(id)
-                bullets.remove(bullet)
+                if bullet in bullets:
+                    bullets.remove(bullet)
                 shot -= 1 if shot > 0 else 0
                 delete_bullet(bullet)
+
+    if dead:
+        screen.blit(youdied_img, (0, 0))
 
     pygame.display.flip()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            print "QUITTING"
             disconnect()
+            print "DISCONNECTED"
             my_socket.close()
             pygame.quit()
+            print "SOCKET AND PYGAME CLOSED"
             exit(0)
         if event.type == pygame.KEYDOWN:
             if not dead:
@@ -354,18 +406,36 @@ while running:
                 shot += 1
 
     moved = False
+    direction = -1
     if keys[0]:
         player_pos[1] -= player_speed
+        direction = 0
         moved = True
     elif keys[2]:
         player_pos[1] += player_speed
+        direction = 2
         moved = True
     if keys[1]:
         player_pos[0] -= player_speed
+        direction = 1
         moved = True
     elif keys[3]:
         player_pos[0] += player_speed
+        direction = 3
         moved = True
+
+    # for obstacle in obstacles:
+    #     if player_rect.colliderect(obstacle):
+    #         print "COLLIDED", direction
+    #         if direction == 0:
+    #             player_pos[1] += player_speed
+    #         elif direction == 1:
+    #             player_pos[0] += player_speed
+    #         elif direction == 2:
+    #             player_pos[1] -= player_speed
+    #         elif direction == 3:
+    #             player_pos[0] += player_speed
+    #         moved = False
     if moved:
         send_player_pos()
     clock.tick(30)

@@ -83,8 +83,8 @@ while True:
         elif code == "11":
             print 'Getting pos#1'
             data = msg[2:]
-            print data, addr
-            if data is not None and p1 is not None:
+            if data is not None and data != "" and p1 is not None:
+                print data, addr
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
                     p1[i] = int(data[i])
@@ -96,7 +96,7 @@ while True:
         elif code == "12":
             print 'Getting pos#2'
             data = msg[2:]
-            if data is not None and p2 is not None:
+            if data is not None and data != "" and p2 is not None:
                 print data, addr
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
@@ -109,7 +109,7 @@ while True:
         elif code == "13":
             print 'Getting pos#3'
             data = msg[2:]
-            if data is not None and p3 is not None:
+            if data is not None and data != "" and p3 is not None:
                 print data, addr
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
@@ -122,7 +122,7 @@ while True:
         elif code == "14":
             print 'Getting pos#4'
             data = msg[2:]
-            if data is not None and p4 is not None:
+            if data is not None and data != "" and p4 is not None:
                 print data, addr
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
@@ -245,24 +245,24 @@ while True:
         elif code == "99":
             if players["1"] == addr:
                 players["1"] = ""
+                addrs.remove(addr)
                 for address in addrs:
                     server_socket.sendto("Player #1 Disconnected", address)
-                addrs.remove(addr)
             elif players["2"] == addr:
                 players["2"] = ""
+                addrs.remove(addr)
                 for address in addrs:
                     server_socket.sendto("Player #2 Disconnected", address)
-                addrs.remove(addr)
             elif players["3"] == addr:
                 players["3"] = ""
+                addrs.remove(addr)
                 for address in addrs:
                     server_socket.sendto("Player #3 Disconnected", address)
-                addrs.remove(addr)
             elif players["4"] == addr:
                 players["4"] = ""
+                addrs.remove(addr)
                 for address in addrs:
                     server_socket.sendto("Player #4 Disconnected", address)
-                addrs.remove(addr)
 
         else:
             server_socket.sendto("Wrong code. " + code, addr)
