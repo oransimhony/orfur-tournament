@@ -7,8 +7,9 @@ from pygame.locals import *
 
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-s_host = ("77.139.180.35", 8888)
+s_host = ("127.0.0.1", 8888)
 pid = 0
+dead = False
 
 p1 = [100, 100, 0.0]
 p2 = [700, 100, 3.0]
@@ -109,6 +110,8 @@ class ReceiveThread(threading.Thread):
                     players_health[p - 1] = hp
                     if players_health[p - 1] <= 0:
                         player_positions[p - 1] = None
+                        if p - 1 == pid:
+                            dead = True
                     # if p == 1:
                     #     p1_health = hp
                     # elif p == 2:
@@ -297,23 +300,17 @@ while running:
         screen.blit(ammo, (20 + i * 15, 560))
 
     for badguy, id in bad_guys:
-        index1 = 0
         for bullet in bullets:
             bullrect = pygame.Rect(bullet_img.get_rect())
             bullrect.left = bullet[2]
             bullrect.top = bullet[3]
             if badguy.colliderect(bullrect):
-                # bad_guys.pop(index)
                 print "HIT"
-                players_health[1] -= 1
-                print enemy_hit(id)
-                # print player_positions
-                bullets.pop(index1)
-                index1 -= 1
+                players_health[id - 1] -= 1
+                enemy_hit(id)
+                bullets.remove(bullet)
                 shot -= 1 if shot > 0 else 0
                 delete_bullet(bullet)
-                break
-            index1 += 1
 
     pygame.display.flip()
 
@@ -324,18 +321,19 @@ while running:
             pygame.quit()
             exit(0)
         if event.type == pygame.KEYDOWN:
-            if event.key == K_w:
-                keys[0] = True
-            elif event.key == K_a:
-                keys[1] = True
-            elif event.key == K_s:
-                keys[2] = True
-            elif event.key == K_d:
-                keys[3] = True
+            if not dead:
+                if event.key == K_w:
+                    keys[0] = True
+                elif event.key == K_a:
+                    keys[1] = True
+                elif event.key == K_s:
+                    keys[2] = True
+                elif event.key == K_d:
+                    keys[3] = True
             elif event.key == K_f:
                 flags ^= FULLSCREEN
                 pygame.display.set_mode((width, height), flags)
-        if event.type == pygame.KEYUP:
+        if event.type == pygame.KEYUP and not dead:
             if event.key == K_w:
                 keys[0] = False
             elif event.key == K_a:
@@ -344,7 +342,7 @@ while running:
                 keys[2] = False
             elif event.key == K_d:
                 keys[3] = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and not dead:
             position = pygame.mouse.get_pos()
             b = [pid,
                  math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
