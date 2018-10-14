@@ -12,10 +12,10 @@ s_host = ("127.0.0.1", 8888)
 pid = 0
 dead = False
 
-p1 = [100, 100, 0.0]
-p2 = [700, 100, 3.0]
-p3 = [100, 500, 0.0]
-p4 = [700, 500, 3.0]
+p1 = None  # [100, 100, 0.0]
+p2 = None  # [700, 100, 3.0]
+p3 = None  # [100, 500, 0.0]
+p4 = None  # [700, 500, 3.0]
 player_positions = [p1, p2, p3, p4]
 
 p1_health = 30
@@ -32,6 +32,72 @@ player_pos = []
 mouse = []
 
 messages = []
+
+
+def restart_values():
+    global p1
+    global p2
+    global p3
+    global p4
+    global p1_health
+    global p2_health
+    global p3_health
+    global p4_health
+    global bullets
+    global player_positions
+    global player_pos
+
+    p1 = None
+    p2 = None
+    p3 = None
+    p4 = None
+
+    player_positions = [p1, p2, p3, p4]
+    player_pos = []
+
+    if pid == "1":
+        if p1 is not None:
+            player_pos = [p1[0], p1[1], p1[2]]
+            player_positions.remove(p1)
+            player_positions.append(player_pos)
+        else:
+            player_pos = None
+            player_positions.remove(p1)
+            player_positions.append(player_pos)
+    elif pid == "2":
+        if p1 is not None:
+            player_pos = [p1[0], p1[1], p1[2]]
+            player_positions.remove(p2)
+            player_positions.append(player_pos)
+        else:
+            player_pos = None
+            player_positions.remove(p2)
+            player_positions.append(player_pos)
+    elif pid == "3":
+        if p1 is not None:
+            player_pos = [p1[0], p1[1], p1[2]]
+            player_positions.remove(p3)
+            player_positions.append(player_pos)
+        else:
+            player_pos = None
+            player_positions.remove(p3)
+            player_positions.append(player_pos)
+    elif pid == "4":
+        if p1 is not None:
+            player_pos = [p1[0], p1[1], p1[2]]
+            player_positions.remove(p4)
+            player_positions.append(player_pos)
+        else:
+            player_pos = None
+            player_positions.remove(p4)
+            player_positions.append(player_pos)
+
+    p1_health = 30
+    p2_health = 30
+    p3_health = 30
+    p4_health = 30
+
+    bullets = []
 
 
 class ReceiveThread(threading.Thread):
@@ -62,47 +128,91 @@ class ReceiveThread(threading.Thread):
                 data = data.split(",")
                 code = data[0]
 
-                if code == "zz":
+                if code == "s":
+                    restart_values()
+
+                elif code == "zz":
                     p = data[1]
                     x = data[2]
-                    y = data[3]
-                    angle = data[4]
-                    if p == "1":
-                        if pid == p:
-                            player_positions.remove(player_pos)
-                            player_pos = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, player_pos)
-                        else:
-                            player_positions.remove(p1)
-                            p1 = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, p1)
-                    elif p == "2":
-                        if pid == p:
-                            player_positions.remove(player_pos)
-                            player_pos = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, player_pos)
-                        else:
-                            player_positions.remove(p2)
-                            p2 = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, p2)
-                    elif p == "3":
-                        if pid == p:
-                            player_positions.remove(player_pos)
-                            player_pos = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, player_pos)
-                        else:
-                            player_positions.remove(p3)
-                            p3 = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, p3)
-                    elif p == "4":
-                        if pid == p:
-                            player_positions.remove(player_pos)
-                            player_pos = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, player_pos)
-                        else:
-                            player_positions.remove(p4)
-                            p4 = [int(x), int(y), float(angle)]
-                            player_positions.insert(int(p) - 1, p4)
+                    if x != "None":
+                        print player_pos, player_positions
+                        y = data[3]
+                        angle = data[4]
+                        if p == "1":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p1)
+                                p1 = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, p1)
+                        elif p == "2":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p2)
+                                p2 = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, p2)
+                        elif p == "3":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p3)
+                                p3 = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, p3)
+                        elif p == "4":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p4)
+                                p4 = [int(x), int(y), float(angle)]
+                                player_positions.insert(int(p) - 1, p4)
+
+                    else:
+                        print player_pos, player_positions
+                        if p == "1":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = None
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p1)
+                                p1 = None
+                                player_positions.insert(int(p) - 1, p1)
+                        elif p == "2":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = None
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p2)
+                                p2 = None
+                                player_positions.insert(int(p) - 1, p2)
+                        elif p == "3":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = None
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p3)
+                                p3 = None
+                                player_positions.insert(int(p) - 1, p3)
+                        elif p == "4":
+                            if pid == p:
+                                player_positions.remove(player_pos)
+                                player_pos = None
+                                player_positions.insert(int(p) - 1, player_pos)
+                            else:
+                                player_positions.remove(p4)
+                                p4 = None
+                                player_positions.insert(int(p) - 1, p4)
                 elif code == "B":
                     if data[1] != "[]":
                         bullets_data = data[1][1:-1]
@@ -250,6 +360,10 @@ def won(player_won):
         my_socket.sendto("20," + "Congratulations!,5,400", s_host)
 
 
+def new_round():
+    my_socket.sendto("90", s_host)
+
+
 def make_text(text_message, x, y, text_color):
     text = font.render(text_message, True, text_color)
     text_rect = text.get_rect()
@@ -257,8 +371,8 @@ def make_text(text_message, x, y, text_color):
     text_rect.top = y
     offset_messages()
     if "Congrat" in text_message or "won" in text_message:
-        return [text, text_rect, time_to_fade * 2]
-    return [text, text_rect, time_to_fade]
+        return [text, text_rect, time_to_fade * 2, True]
+    return [text, text_rect, time_to_fade, False]
 
 
 def offset_messages():
@@ -319,21 +433,41 @@ initial_connect()
 # obstacles = [pygame.draw.rect(screen, (300, 200), (255, 0, 0), (50, 70)), pygame.draw.rect(screen, (150, 600), (255, 0, 0), (34, 57))]
 
 if pid == "1":
-    player_pos = [p1[0], p1[1], p1[2]]
-    player_positions.remove(p1)
-    player_positions.append(player_pos)
+    if p1 is not None:
+        player_pos = [p1[0], p1[1], p1[2]]
+        player_positions.remove(p1)
+        player_positions.append(player_pos)
+    else:
+        player_pos = None
+        player_positions.remove(p1)
+        player_positions.append(player_pos)
 elif pid == "2":
-    player_pos = [p2[0], p2[1], p2[2]]
-    player_positions.remove(p2)
-    player_positions.append(player_pos)
+    if p1 is not None:
+        player_pos = [p1[0], p1[1], p1[2]]
+        player_positions.remove(p2)
+        player_positions.append(player_pos)
+    else:
+        player_pos = None
+        player_positions.remove(p2)
+        player_positions.append(player_pos)
 elif pid == "3":
-    player_pos = [p3[0], p3[1], p3[2]]
-    player_positions.remove(p3)
-    player_positions.append(player_pos)
+    if p1 is not None:
+        player_pos = [p1[0], p1[1], p1[2]]
+        player_positions.remove(p3)
+        player_positions.append(player_pos)
+    else:
+        player_pos = None
+        player_positions.remove(p3)
+        player_positions.append(player_pos)
 elif pid == "4":
-    player_pos = [p4[0], p4[1], p4[2]]
-    player_positions.remove(p4)
-    player_positions.append(player_pos)
+    if p1 is not None:
+        player_pos = [p1[0], p1[1], p1[2]]
+        player_positions.remove(p4)
+        player_positions.append(player_pos)
+    else:
+        player_pos = None
+        player_positions.remove(p4)
+        player_positions.append(player_pos)
 
 oplayerspos = []
 oplayerangle = []
@@ -382,6 +516,9 @@ while running:
                     send_mouse(playerp[2])
                     mouse = position
             else:
+                print "SPECTATING"
+                text, text_rect, time_to_fade, special = make_text("SPECTATING", width / 2, 700, (255, 230, 153))
+                screen.blit(text, text_rect)
                 players_rects.append([None, id])
             id += 1
         else:
@@ -427,6 +564,8 @@ while running:
         message[2] -= 50
         if message[2] <= 0:
             messages.remove(message)
+            if message[3]:
+                new_round()
         else:
             screen.blit(text, text_rect)
 

@@ -5,10 +5,15 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 host = ""
 port = 8888
 
-p1 = [100, 100, 0.0]
-p2 = [700, 100, 3.0]
-p3 = [100, 500, 0.0]
-p4 = [700, 500, 3.0]
+p1 = None  # [100, 100, 0.0]
+p2 = None  # [700, 100, 3.0]
+p3 = None  # [100, 500, 0.0]
+p4 = None  # [700, 500, 3.0]
+
+p1_start = [100, 100, 0.0]
+p2_start = [700, 100, 3.0]
+p3_start = [100, 500, 0.0]
+p4_start = [700, 500, 3.0]
 
 p1_health = 30
 p2_health = 30
@@ -23,6 +28,7 @@ server_socket.bind((host, port))
 players = {"1": "", "2": "", "3": "", "4": ""}
 addrs = []
 
+
 def restart_values():
     global p1
     global p2
@@ -34,10 +40,10 @@ def restart_values():
     global p4_health
     global bullets
 
-    p1 = [100, 100, 0.0]
-    p2 = [700, 100, 3.0]
-    p3 = [100, 500, 0.0]
-    p4 = [700, 500, 3.0]
+    p1 = None
+    p2 = None
+    p3 = None
+    p4 = None
 
     p1_health = 30
     p2_health = 30
@@ -60,47 +66,114 @@ while True:
         if code == "00":
             if addr not in addrs:
                 if players["1"] == "":
+                    p1 = p1_start
                     players["1"] = addr
                     addrs.append(addr)
                     server_socket.sendto("You are player #1", addr)
                     server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
-                    server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
-                    server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
-                    server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                    if p2 is not None:
+                        server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+                    else:
+                        server_socket.sendto("zz,2,None", addr)
+                    if p3 is not None:
+                        server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+                    else:
+                        server_socket.sendto("zz,3,None", addr)
+                    if p4 is not None:
+                        server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                    else:
+                        server_socket.sendto("zz,4,None", addr)
                     for addr in addrs:
+                        server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
                         server_socket.sendto("T,Player #1 Connected,5,400", addr)
                 elif players["2"] == "":
+                    p2 = p2_start
                     players["2"] = addr
                     addrs.append(addr)
                     server_socket.sendto("You are player #2", addr)
-                    server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+                    if p1 is not None:
+                        server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+                    else:
+                        server_socket.sendto("zz,1,None", addr)
                     server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
-                    server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
-                    server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                    if p3 is not None:
+                        server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+                    else:
+                        server_socket.sendto("zz,3,None", addr)
+                    if p4 is not None:
+                        server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                    else:
+                        server_socket.sendto("zz,4,None", addr)
                     for addr in addrs:
+                        server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
                         server_socket.sendto("T,Player #2 Connected,5,400", addr)
                 elif players["3"] == "":
+                    p3 = p3_start
                     players["3"] = addr
                     addrs.append(addr)
                     server_socket.sendto("You are player #3", addr)
-                    server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
-                    server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+                    if p1 is not None:
+                        server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+                    else:
+                        server_socket.sendto("zz,1,None", addr)
+                    if p2 is not None:
+                        server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+                    else:
+                        server_socket.sendto("zz,2,None", addr)
                     server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
-                    server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                    if p4 is not None:
+                        server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                    else:
+                        server_socket.sendto("zz,4,None", addr)
                     for addr in addrs:
+                        server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
                         server_socket.sendto("T,Player #3 Connected,5,400", addr)
                 elif players["4"] == "":
+                    p4 = p4_start
                     players["4"] = addr
                     addrs.append(addr)
                     server_socket.sendto("You are player #4", addr)
-                    server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
-                    server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
-                    server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+                    if p1 is not None:
+                        server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+                    else:
+                        server_socket.sendto("zz,1,None", addr)
+                    if p2 is not None:
+                        server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+                    else:
+                        server_socket.sendto("zz,2,None", addr)
+                    if p3 is not None:
+                        server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+                    else:
+                        server_socket.sendto("zz,3,None", addr)
                     server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
                     for addr in addrs:
+                        server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
                         server_socket.sendto("T,Player #4 Connected,5,400", addr)
                 else:
                     server_socket.sendto("Maximum number of players connected.", addr)
+
+
+
+                    ###
+                    # if p1 is not None:
+                    #     server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+                    # else:
+                    #     server_socket.sendto("zz,1,None", addr)
+                    # if p2 is not None:
+                    #     server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+                    # else:
+                    #     server_socket.sendto("zz,2,None", addr)
+                    # if p3 is not None:
+                    #     server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+                    # else:
+                    #     server_socket.sendto("zz,3,None", addr)
+                    # if p4 is not None:
+                    #     server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                    # else:
+                    #     server_socket.sendto("zz,4,None", addr)
+                    # server_socket.sendto("B,[]", addr)
+                    # server_socket.sendto("T,New Round Starting,5,400", addr)
+                    ###
         elif code == "11":
             # print 'Getting pos#1'
             data = msg[2:]
@@ -303,6 +376,33 @@ while True:
 
         elif code == "81":
             data = msg[2:]
+
+        elif code == "90":
+            restart_values()
+            for addr in addrs:
+                server_socket.sendto("s", addr)
+                if p1 is not None:
+                    server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+                else:
+                    server_socket.sendto("zz,1,None", addr)
+                if p2 is not None:
+                    server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+                else:
+                    server_socket.sendto("zz,2,None", addr)
+                if p3 is not None:
+                    server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+                else:
+                    server_socket.sendto("zz,3,None", addr)
+                if p4 is not None:
+                    server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                else:
+                    server_socket.sendto("zz,4,None", addr)
+                server_socket.sendto("hp,1," + str(p1_health) + ",1", addr)
+                server_socket.sendto("hp,2," + str(p2_health) + ",1", addr)
+                server_socket.sendto("hp,3," + str(p3_health) + ",1", addr)
+                server_socket.sendto("hp,4," + str(p4_health) + ",1", addr)
+                server_socket.sendto("B,[]", addr)
+                server_socket.sendto("T,New Round Starting,5,400", addr)
 
         elif code == "99":
             if players["1"] == addr:
