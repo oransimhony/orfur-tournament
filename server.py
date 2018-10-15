@@ -40,10 +40,22 @@ def restart_values():
     global p4_health
     global bullets
 
-    p1 = None
-    p2 = None
-    p3 = None
-    p4 = None
+    if players["1"]:
+        p1 = p1_start
+    else:
+        p1 = None
+    if players["2"]:
+        p2 = p2_start
+    else:
+        p2 = None
+    if players["3"]:
+        p3 = p3_start
+    else:
+        p3 = None
+    if players["4"]:
+        p4 = p4_start
+    else:
+        p4 = None
 
     p1_health = 30
     p2_health = 30
@@ -328,19 +340,31 @@ while True:
 
         elif code == "61":
             data = msg[2:]
-            p1[2] = data
+            if p1 is not None:
+                p1[2] = float(data)
+                for addr in addrs:
+                    server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
 
         elif code == "62":
             data = msg[2:]
-            p2[2] = data
+            if p2 is not None:
+                p2[2] = float(data)
+                for addr in addrs:
+                    server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
 
         elif code == "63":
             data = msg[2:]
-            p3[2] = data
+            if p3 is not None:
+                p3[2] = float(data)
+                for addr in addrs:
+                    server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
 
         elif code == "64":
             data = msg[2:]
-            p4[2] = data
+            if p4 is not None:
+                p4[2] = float(data)
+                for addr in addrs:
+                    server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
 
         elif code == "71":
             data = msg[2:]
@@ -374,10 +398,8 @@ while True:
             for addr in addrs:
                 server_socket.sendto("hp,4," + str(p4_health) + "," + hitter, addr)
 
-        elif code == "81":
-            data = msg[2:]
-
         elif code == "90":
+            print "NEW ROUND"
             restart_values()
             for addr in addrs:
                 server_socket.sendto("s", addr)
@@ -397,11 +419,11 @@ while True:
                     server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
                 else:
                     server_socket.sendto("zz,4,None", addr)
-                server_socket.sendto("hp,1," + str(p1_health) + ",1", addr)
-                server_socket.sendto("hp,2," + str(p2_health) + ",1", addr)
-                server_socket.sendto("hp,3," + str(p3_health) + ",1", addr)
-                server_socket.sendto("hp,4," + str(p4_health) + ",1", addr)
-                server_socket.sendto("B,[]", addr)
+                # server_socket.sendto("hp,1," + str(p1_health) + ",1", addr)
+                # server_socket.sendto("hp,2," + str(p2_health) + ",1", addr)
+                # server_socket.sendto("hp,3," + str(p3_health) + ",1", addr)
+                # server_socket.sendto("hp,4," + str(p4_health) + ",1", addr)
+                # server_socket.sendto("B,[]", addr)
                 server_socket.sendto("T,New Round Starting,5,400", addr)
 
         elif code == "99":

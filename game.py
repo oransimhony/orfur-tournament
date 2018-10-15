@@ -15,7 +15,7 @@ dead = False
 p1 = None  # [100, 100, 0.0]
 p2 = None  # [700, 100, 3.0]
 p3 = None  # [100, 500, 0.0]
-p4 = None  # [700, 500, 3.0]
+p4 = None  # [700, 500, 3.0]aa
 player_positions = [p1, p2, p3, p4]
 
 p1_health = 30
@@ -33,6 +33,8 @@ mouse = []
 
 messages = []
 
+player_won_id = -1
+
 
 def restart_values():
     global p1
@@ -46,6 +48,7 @@ def restart_values():
     global bullets
     global player_positions
     global player_pos
+    global new
 
     p1 = None
     p2 = None
@@ -99,6 +102,8 @@ def restart_values():
 
     bullets = []
 
+    new = False
+
 
 class ReceiveThread(threading.Thread):
     def __init__(self, name):
@@ -130,6 +135,7 @@ class ReceiveThread(threading.Thread):
 
                 if code == "s":
                     restart_values()
+
 
                 elif code == "zz":
                     p = data[1]
@@ -250,6 +256,7 @@ class ReceiveThread(threading.Thread):
                             if pos is not None:
                                 alive += 1
                         if alive == 1:
+                            global player_won_id
                             player_won_id = 1
                             for pos in player_positions:
                                 if pos is not None:
@@ -361,7 +368,10 @@ def won(player_won):
 
 
 def new_round():
-    my_socket.sendto("90", s_host)
+    print player_won_id, pid
+    if int(player_won_id) == int(pid):
+        print "NEW ROUND SENTTTTTTTTTTTTTT"
+        my_socket.sendto("90", s_host)
 
 
 def make_text(text_message, x, y, text_color):
@@ -369,7 +379,8 @@ def make_text(text_message, x, y, text_color):
     text_rect = text.get_rect()
     text_rect.left = x
     text_rect.top = y
-    offset_messages()
+    if "SPECTATING" not in text_message:
+        offset_messages()
     if "Congrat" in text_message or "won" in text_message:
         return [text, text_rect, time_to_fade * 2, True]
     return [text, text_rect, time_to_fade, False]
@@ -473,6 +484,8 @@ oplayerspos = []
 oplayerangle = []
 arrows = []
 
+new = False
+
 
 running = 1
 exitcode = 0
@@ -516,9 +529,6 @@ while running:
                     send_mouse(playerp[2])
                     mouse = position
             else:
-                print "SPECTATING"
-                text, text_rect, time_to_fade, special = make_text("SPECTATING", width / 2, 700, (255, 230, 153))
-                screen.blit(text, text_rect)
                 players_rects.append([None, id])
             id += 1
         else:
@@ -564,10 +574,17 @@ while running:
         message[2] -= 50
         if message[2] <= 0:
             messages.remove(message)
-            if message[3]:
+            if message[3] and not new:
+                new = True
                 new_round()
         else:
             screen.blit(text, text_rect)
+
+    if dead:
+        # print "SPECTATING"
+        text, text_rect, time_to_fade, special = make_text("SPECTATING", width / 2, 700, (255, 230, 153))
+        # print text, text_rect
+        screen.blit(text, text_rect)
 
     pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
     pygame.draw.rect(screen, (255, 0, 0), (20 + int(100 * (float(health) / max_health)), 530, int(100 * (1 - (float(health) / max_health))), 20))
