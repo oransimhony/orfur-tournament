@@ -61,6 +61,7 @@ def restart_values():
     global dead
     global health
     global shot
+    global keys
 
     messages = []
 
@@ -120,6 +121,7 @@ def restart_values():
 
     new = False
     dead = []
+    keys = [False, False, False, False]
 
 
 class ReceiveThread(threading.Thread):
@@ -428,7 +430,7 @@ player_speed = 6
 clock = pygame.time.Clock()
 frame = 0
 
-player_img = pygame.image.load('player.png')
+player_img = pygame.image.load('player1.png')
 player_img = pygame.transform.scale(player_img, (62, 41))
 # bullet_img = pygame.image.load('bullet1.png')
 # bullet_img = pygame.transform.scale(bullet_img, (14, 6))
@@ -551,6 +553,9 @@ while running:
                 if position != mouse:
                     send_mouse(playerp[2])
                     mouse = position
+                    point1 = (mouse[0], mouse[1])
+                    point2 = (mouse[0], player_pos[1] + 12)
+                    point3 = (player_pos[0] + 34 + 62 * (playerp[2])/math.pi, player_pos[1] + 12 + 41 * (playerp[2])/math.pi)
             else:
                 players_rects.append([None, id])
             id += 1
@@ -632,6 +637,17 @@ while running:
     #                 shot -= 1 if shot > 0 else 0
     #                 delete_bullet(bullet)
 
+    if debug:
+        for players_rect, player_id in players_rects:
+            if players_rect is not None:
+                pygame.draw.rect(screen, (255, 0, 0), players_rect, 1)
+        if player_pos is not None:
+            # pygame.draw.line(screen, (0, 255, 0), (mouse[0], mouse[1]), (player_pos[0] + 34, player_pos[1] + 12))
+            pygame.draw.line(screen, (0, 255, 0), point1, point3)
+            pygame.draw.line(screen, (0, 255, 0), point1, point2)
+            pygame.draw.line(screen, (0, 255, 0), point3, point2)
+            # pygame.draw.polygon(screen, (0, 255, 0), [[mouse[0], mouse[1]], [player_pos[0], player_pos[1]], [[player_pos[0], mouse[1]]]], 1)
+
     for players_rect, player_id in players_rects:
         if players_rect is not None:
             for bullet in bullets:
@@ -693,9 +709,9 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN and not dead:
             position = pygame.mouse.get_pos()
             b = [pid,
-                 math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
-                 player_pos[0] + 31,
-                 player_pos[1] + 20]
+                 math.atan2(position[1] - (player_pos[1] + 12), position[0] - (player_pos[0] + 34)),  # math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
+                 player_pos[0] + 34,
+                 player_pos[1] + 12]
             bc = [bullet for bullet in bullets if bullet[0] == pid]
             if len(bc) <= 3:
                 send_bullet(b)
@@ -752,4 +768,7 @@ while running:
     #         moved = False
     if moved:
         send_player_pos()
+        point1 = (mouse[0], mouse[1])
+        point2 = (mouse[0], player_pos[1] + 12)
+        point3 = (player_pos[0] + 34, player_pos[1] + 12)
     clock.tick(30)
