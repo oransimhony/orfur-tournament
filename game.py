@@ -8,7 +8,15 @@ from pygame.locals import *
 
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-s_host = ("127.0.0.1", 8888)
+hostname = raw_input("Hostname: ")
+if "l" in hostname:
+    s_host = ("127.0.0.1", 8888)
+else:
+    s_host = (hostname, 8888)
+
+debug = raw_input("Debug Mode? (Y/N)")
+debug = True if "y" in debug.lower() else False
+
 pid = 0
 dead = False
 
@@ -49,6 +57,12 @@ def restart_values():
     global player_positions
     global player_pos
     global new
+    global messages
+    global dead
+    global health
+    global shot
+
+    messages = []
 
     p1 = None
     p2 = None
@@ -99,10 +113,13 @@ def restart_values():
     p2_health = 30
     p3_health = 30
     p4_health = 30
+    health = 30
+    shot = 0
 
     bullets = []
 
     new = False
+    dead = []
 
 
 class ReceiveThread(threading.Thread):
@@ -119,7 +136,8 @@ class ReceiveThread(threading.Thread):
         global player_pos
         global bullets
 
-        print "Listening"
+        if debug:
+            print "Listening"
         while True:
             try:
                 (data, addr) = my_socket.recvfrom(8192)
@@ -129,19 +147,20 @@ class ReceiveThread(threading.Thread):
                 print message
                 data, addr = "", ()
             if data != "":
-                print "The server sent: " + data
+                if debug:
+                    print "The server sent: " + data
                 data = data.split(",")
                 code = data[0]
 
                 if code == "s":
                     restart_values()
 
-
                 elif code == "zz":
                     p = data[1]
                     x = data[2]
                     if x != "None":
-                        print player_pos, player_positions
+                        if debug:
+                            print player_pos, player_positions
                         y = data[3]
                         angle = data[4]
                         if p == "1":
@@ -182,7 +201,8 @@ class ReceiveThread(threading.Thread):
                                 player_positions.insert(int(p) - 1, p4)
 
                     else:
-                        print player_pos, player_positions
+                        if debug:
+                            print player_pos, player_positions
                         if p == "1":
                             if pid == p:
                                 player_positions.remove(player_pos)
@@ -236,7 +256,7 @@ class ReceiveThread(threading.Thread):
                     text = data[1]
                     x = int(data[2])
                     y = int(data[3])
-                    messages.append(make_text(text, x, y, (255, 230, 153)))
+                    messages.append(make_text(text, x, y, (33, 33, 33)))
 
                 elif code == "hp":
                     global dead
@@ -294,7 +314,8 @@ def initial_connect():
 
     my_socket.sendto("00", s_host)
     (data, addr) = my_socket.recvfrom(1024)
-    print "The server sent: " + data
+    if debug:
+        print "The server sent: " + data
     try:
         pid = data.split("#")[1]
         lThread.daemon = True
@@ -368,14 +389,16 @@ def won(player_won):
 
 
 def new_round():
-    print player_won_id, pid
+    if debug:
+        print player_won_id, pid
     if int(player_won_id) == int(pid):
-        print "NEW ROUND SENTTTTTTTTTTTTTT"
+        if debug:
+            print "NEW ROUND SENTTTTTTTTTTTTTT"
         my_socket.sendto("90", s_host)
 
 
 def make_text(text_message, x, y, text_color):
-    text = font.render(text_message, True, text_color)
+    text = font.render(text_message, True, text_color, (255, 255, 255))
     text_rect = text.get_rect()
     text_rect.left = x
     text_rect.top = y
@@ -578,11 +601,12 @@ while running:
                 new = True
                 new_round()
         else:
+            # pygame.draw.rect(screen, (255, 255, 255), text_rect)
             screen.blit(text, text_rect)
 
     if dead:
         # print "SPECTATING"
-        text, text_rect, time_to_fade, special = make_text("SPECTATING", width / 2, 700, (255, 230, 153))
+        text, text_rect, time_to_fade, special = make_text("SPECTATING", width / 2, 700, (33, 33, 33))  # (255, 230, 153)
         # print text, text_rect
         screen.blit(text, text_rect)
 
@@ -631,13 +655,19 @@ while running:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            print "QUITTING"
-            disconnect()
-            print "DISCONNECTED"
-            my_socket.close()
-            pygame.quit()
-            print "SOCKET AND PYGAME CLOSED"
-            exit(0)
+            if debug:
+                print "QUITTING"
+                disconnect()
+                print "DISCONNECTED"
+                my_socket.close()
+                pygame.quit()
+                print "SOCKET AND PYGAME CLOSED"
+                exit(0)
+            else:
+                disconnect()
+                my_socket.close()
+                pygame.quit()
+                exit(0)
         if event.type == pygame.KEYDOWN:
             if not dead:
                 if event.key == K_w:
@@ -689,6 +719,24 @@ while running:
         player_pos[0] += player_speed
         direction = 3
         moved = True
+
+    #
+    # if keys[0]:
+    #     player_pos[1] = player_pos[1] - player_speed if player_pos[1] - player_speed - player_rect.height / 2 > 0 else 0
+    #     direction = 0
+    #     moved = True
+    # elif keys[2]:
+    #     player_pos[1] = player_pos[1] + player_speed if player_pos[1] + player_speed + player_rect.height / 2 < height else height
+    #     direction = 2
+    #     moved = True
+    # if keys[1]:
+    #     player_pos[0] = player_pos[0] - player_speed if player_pos[0] - player_speed - player_rect.width / 2 > 0 else 0
+    #     direction = 1
+    #     moved = True
+    # elif keys[3]:
+    #     player_pos[0] = player_pos[0] + player_speed if player_pos[0] + player_speed + player_rect.width / 2 < width else width
+    #     direction = 3
+    #     moved = True
 
     # for obstacle in obstacles:
     #     if player_rect.colliderect(obstacle):

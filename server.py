@@ -2,7 +2,7 @@ import socket
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-host = ""
+host = "0.0.0.0"
 port = 8888
 
 p1 = None  # [100, 100, 0.0]
@@ -39,12 +39,23 @@ def restart_values():
     global p3_health
     global p4_health
     global bullets
+    global p1_start
+    global p2_start
+    global p3_start
+    global p4_start
+
+    p1_start = [100, 100, 0.0]
+    p2_start = [700, 100, 3.0]
+    p3_start = [100, 500, 0.0]
+    p4_start = [700, 500, 3.0]
 
     if players["1"]:
+        print p1_start
         p1 = p1_start
     else:
         p1 = None
     if players["2"]:
+        print p2_start
         p2 = p2_start
     else:
         p2 = None
@@ -57,12 +68,15 @@ def restart_values():
     else:
         p4 = None
 
+    print "RESET PLAYER TO INITIAL POS", p1, p2, p3, p4
+
     p1_health = 30
     p2_health = 30
     p3_health = 30
     p4_health = 30
 
     bullets = []
+
 
 while True:
     try:
@@ -164,28 +178,6 @@ while True:
                 else:
                     server_socket.sendto("Maximum number of players connected.", addr)
 
-
-
-                    ###
-                    # if p1 is not None:
-                    #     server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
-                    # else:
-                    #     server_socket.sendto("zz,1,None", addr)
-                    # if p2 is not None:
-                    #     server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
-                    # else:
-                    #     server_socket.sendto("zz,2,None", addr)
-                    # if p3 is not None:
-                    #     server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
-                    # else:
-                    #     server_socket.sendto("zz,3,None", addr)
-                    # if p4 is not None:
-                    #     server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
-                    # else:
-                    #     server_socket.sendto("zz,4,None", addr)
-                    # server_socket.sendto("B,[]", addr)
-                    # server_socket.sendto("T,New Round Starting,5,400", addr)
-                    ###
         elif code == "11":
             # print 'Getting pos#1'
             data = msg[2:]
