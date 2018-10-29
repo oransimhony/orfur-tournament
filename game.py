@@ -33,7 +33,7 @@ p4_health = 30
 players_health = [p1_health, p2_health, p3_health, p4_health]
 
 bullets = []
-player_pos = []
+player_pos = None
 
 # player_rect = Rect(0, 0, 0, 0)
 
@@ -71,7 +71,7 @@ def restart_values():
     p4 = None
 
     player_positions = [p1, p2, p3, p4]
-    player_pos = []
+    player_pos = None
 
     if pid == "1":
         if p1 is not None:
@@ -165,43 +165,45 @@ class ReceiveThread(threading.Thread):
                             print player_pos, player_positions
                         y = data[3]
                         angle = data[4]
-                        if p == "1":
-                            if pid == p:
-                                player_positions.remove(player_pos)
-                                player_pos = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, player_pos)
-                            else:
-                                player_positions.remove(p1)
-                                p1 = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, p1)
-                        elif p == "2":
-                            if pid == p:
-                                player_positions.remove(player_pos)
-                                player_pos = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, player_pos)
-                            else:
-                                player_positions.remove(p2)
-                                p2 = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, p2)
-                        elif p == "3":
-                            if pid == p:
-                                player_positions.remove(player_pos)
-                                player_pos = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, player_pos)
-                            else:
-                                player_positions.remove(p3)
-                                p3 = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, p3)
-                        elif p == "4":
-                            if pid == p:
-                                player_positions.remove(player_pos)
-                                player_pos = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, player_pos)
-                            else:
-                                player_positions.remove(p4)
-                                p4 = [int(x), int(y), float(angle)]
-                                player_positions.insert(int(p) - 1, p4)
-
+                        try:
+                            if p == "1":
+                                if pid == p:
+                                    player_positions.remove(player_pos)
+                                    player_pos = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, player_pos)
+                                else:
+                                    player_positions.remove(p1)
+                                    p1 = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, p1)
+                            elif p == "2":
+                                if pid == p:
+                                    player_positions.remove(player_pos)
+                                    player_pos = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, player_pos)
+                                else:
+                                    player_positions.remove(p2)
+                                    p2 = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, p2)
+                            elif p == "3":
+                                if pid == p:
+                                    player_positions.remove(player_pos)
+                                    player_pos = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, player_pos)
+                                else:
+                                    player_positions.remove(p3)
+                                    p3 = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, p3)
+                            elif p == "4":
+                                if pid == p:
+                                    player_positions.remove(player_pos)
+                                    player_pos = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, player_pos)
+                                else:
+                                    player_positions.remove(p4)
+                                    p4 = [int(x), int(y), float(angle)]
+                                    player_positions.insert(int(p) - 1, p4)
+                        except ValueError:
+                            print player_pos, player_positions
                     else:
                         if debug:
                             print player_pos, player_positions
@@ -465,6 +467,9 @@ max_health = 30
 
 initial_connect()
 
+x_offset = 34
+y_offset = 12
+
 # obstacles = [[300, 200, 50, 70], [360, 280, 50, 70]]
 # obstacles = [pygame.draw.rect(screen, (300, 200), (255, 0, 0), (50, 70)), pygame.draw.rect(screen, (150, 600), (255, 0, 0), (34, 57))]
 
@@ -472,38 +477,22 @@ if pid == "1":
     if p1 is not None:
         player_pos = [p1[0], p1[1], p1[2]]
         player_positions.remove(p1)
-        player_positions.append(player_pos)
-    else:
-        player_pos = None
-        player_positions.remove(p1)
-        player_positions.append(player_pos)
+        player_positions.insert(int(pid) - 1, player_pos)
 elif pid == "2":
-    if p1 is not None:
-        player_pos = [p1[0], p1[1], p1[2]]
+    if p2 is not None:
+        player_pos = [p2[0], p2[1], p2[2]]
         player_positions.remove(p2)
-        player_positions.append(player_pos)
-    else:
-        player_pos = None
-        player_positions.remove(p2)
-        player_positions.append(player_pos)
+        player_positions.insert(int(pid) - 1, player_pos)
 elif pid == "3":
-    if p1 is not None:
-        player_pos = [p1[0], p1[1], p1[2]]
+    if p3 is not None:
+        player_pos = [p3[0], p3[1], p3[2]]
         player_positions.remove(p3)
-        player_positions.append(player_pos)
-    else:
-        player_pos = None
-        player_positions.remove(p3)
-        player_positions.append(player_pos)
+        player_positions.insert(int(pid) - 1, player_pos)
 elif pid == "4":
-    if p1 is not None:
-        player_pos = [p1[0], p1[1], p1[2]]
+    if p4 is not None:
+        player_pos = [p4[0], p4[1], p4[2]]
         player_positions.remove(p4)
-        player_positions.append(player_pos)
-    else:
-        player_pos = None
-        player_positions.remove(p4)
-        player_positions.append(player_pos)
+        player_positions.insert(int(pid) - 1, player_pos)
 
 oplayerspos = []
 oplayerangle = []
@@ -544,7 +533,7 @@ while running:
             if playerp is not None:
                 # global player_rect
                 position = pygame.mouse.get_pos()
-                playerp[2] = math.atan2(position[1] - (playerp[1] + 31), position[0] - (playerp[0] + 20))
+                playerp[2] = math.atan2(position[1] - (player_pos[1] + y_offset), position[0] - (player_pos[0] + x_offset))
                 playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
                 playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
                 screen.blit(playerrot, playerpos1)
@@ -555,7 +544,7 @@ while running:
                     mouse = position
                     point1 = (mouse[0], mouse[1])
                     point2 = (mouse[0], player_pos[1] + 12)
-                    point3 = (player_pos[0] + 34 + 62 * (playerp[2])/math.pi, player_pos[1] + 12 + 41 * (playerp[2])/math.pi)
+                    point3 = (player_pos[0] + x_offset + 62 * (playerp[2])/math.pi, player_pos[1] + y_offset + 41 * (playerp[2])/math.pi)
             else:
                 players_rects.append([None, id])
             id += 1
@@ -646,6 +635,8 @@ while running:
             pygame.draw.line(screen, (0, 255, 0), point1, point3)
             pygame.draw.line(screen, (0, 255, 0), point1, point2)
             pygame.draw.line(screen, (0, 255, 0), point3, point2)
+            pygame.draw.circle(screen, (0, 0, 255), (player_pos[0], player_pos[1]), 1)
+            pygame.draw.circle(screen, (0, 0, 255), (int(point3[0]), int(point3[1])), 1)
             # pygame.draw.polygon(screen, (0, 255, 0), [[mouse[0], mouse[1]], [player_pos[0], player_pos[1]], [[player_pos[0], mouse[1]]]], 1)
 
     for players_rect, player_id in players_rects:
@@ -708,10 +699,13 @@ while running:
                 keys[3] = False
         if event.type == pygame.MOUSEBUTTONDOWN and not dead:
             position = pygame.mouse.get_pos()
+            ang = math.atan2(position[1] - (player_pos[1] + y_offset), position[0] - (player_pos[0] + x_offset))
+            if position[1] > player_pos[1] and position[0] < player_pos[0]:
+                ang = -ang
             b = [pid,
-                 math.atan2(position[1] - (player_pos[1] + 12), position[0] - (player_pos[0] + 34)),  # math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
-                 player_pos[0] + 34,
-                 player_pos[1] + 12]
+                 ang,  # math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
+                 player_pos[0] + x_offset,
+                 player_pos[1] + y_offset]
             bc = [bullet for bullet in bullets if bullet[0] == pid]
             if len(bc) <= 3:
                 send_bullet(b)
@@ -770,5 +764,5 @@ while running:
         send_player_pos()
         point1 = (mouse[0], mouse[1])
         point2 = (mouse[0], player_pos[1] + 12)
-        point3 = (player_pos[0] + 34, player_pos[1] + 12)
+        point3 = (player_pos[0] + x_offset, player_pos[1] + y_offset)
     clock.tick(30)
