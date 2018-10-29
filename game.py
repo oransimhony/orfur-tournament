@@ -469,6 +469,7 @@ initial_connect()
 
 x_offset = 34
 y_offset = 12
+offset = pygame.math.Vector2((x_offset, y_offset))
 
 # obstacles = [[300, 200, 50, 70], [360, 280, 50, 70]]
 # obstacles = [pygame.draw.rect(screen, (300, 200), (255, 0, 0), (50, 70)), pygame.draw.rect(screen, (150, 600), (255, 0, 0), (34, 57))]
@@ -500,6 +501,9 @@ arrows = []
 
 new = False
 
+point1 = (0, 0)
+point2 = (0, 0)
+point3 = (0, 0)
 
 running = 1
 exitcode = 0
@@ -531,9 +535,8 @@ while running:
     for playerp in player_positions:
         if playerp is player_pos:
             if playerp is not None:
-                # global player_rect
                 position = pygame.mouse.get_pos()
-                playerp[2] = math.atan2(position[1] - (player_pos[1] + y_offset), position[0] - (player_pos[0] + x_offset))
+                playerp[2] = math.atan2(position[1] - point3[1], position[0] - point3[0])
                 playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
                 playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
                 screen.blit(playerrot, playerpos1)
@@ -543,8 +546,9 @@ while running:
                     send_mouse(playerp[2])
                     mouse = position
                     point1 = (mouse[0], mouse[1])
-                    point2 = (mouse[0], player_pos[1] + 12)
-                    point3 = (player_pos[0] + x_offset + 62 * (playerp[2])/math.pi, player_pos[1] + y_offset + 41 * (playerp[2])/math.pi)
+                    # point3 = (player_pos[0] + x_offset * ((360 - playerp[2] * 57.29) % 360), player_pos[1] + y_offset * ((360 - playerp[2] * 57.29) % 360))
+                    point3 = (player_pos[0] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).x, player_pos[1] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).y)
+                    point2 = (point1[0], point3[1])
             else:
                 players_rects.append([None, id])
             id += 1
@@ -703,9 +707,9 @@ while running:
             if position[1] > player_pos[1] and position[0] < player_pos[0]:
                 ang = -ang
             b = [pid,
-                 ang,  # math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
-                 player_pos[0] + x_offset,
-                 player_pos[1] + y_offset]
+                 player_pos[2],  # math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
+                 int(point3[0]),
+                 int(point3[1])]
             bc = [bullet for bullet in bullets if bullet[0] == pid]
             if len(bc) <= 3:
                 send_bullet(b)
@@ -713,19 +717,19 @@ while running:
 
     moved = False
     direction = -1
-    if keys[0]:
+    if keys[0] and player_rect.top - player_speed > 0:
         player_pos[1] -= player_speed
         direction = 0
         moved = True
-    elif keys[2]:
+    elif keys[2] and player_rect.top + player_rect.height + player_speed < height:
         player_pos[1] += player_speed
         direction = 2
         moved = True
-    if keys[1]:
+    if keys[1] and player_rect.left - player_speed > 0:
         player_pos[0] -= player_speed
         direction = 1
         moved = True
-    elif keys[3]:
+    elif keys[3] and player_rect.left + player_rect.width + player_speed < width:
         player_pos[0] += player_speed
         direction = 3
         moved = True
@@ -761,8 +765,15 @@ while running:
     #             player_pos[0] += player_speed
     #         moved = False
     if moved:
+        print player_rect
         send_player_pos()
         point1 = (mouse[0], mouse[1])
-        point2 = (mouse[0], player_pos[1] + 12)
         point3 = (player_pos[0] + x_offset, player_pos[1] + y_offset)
+        # point3 = (player_pos[0] + x_offset * ((360 - player_pos[2] * 57.29) % 360),
+        #           player_pos[1] + y_offset * ((360 - player_pos[2] * 57.29) % 360))
+        point3 = (player_pos[0] + offset.rotate(-(360 - player_pos[2] * 57.29) % 360).x,
+                  player_pos[1] + offset.rotate(-(360 - player_pos[2] * 57.29) % 360).y)
+
+        point2 = (point1[0], point3[1])
+
     clock.tick(30)
