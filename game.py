@@ -23,7 +23,7 @@ dead = False
 p1 = None  # [100, 100, 0.0]
 p2 = None  # [700, 100, 3.0]
 p3 = None  # [100, 500, 0.0]
-p4 = None  # [700, 500, 3.0]aa
+p4 = None  # [700, 500, 3.0]
 player_positions = [p1, p2, p3, p4]
 
 p1_health = 30
@@ -402,7 +402,7 @@ def new_round():
     if int(player_won_id) == int(pid):
         if debug:
             print "NEW ROUND SENTTTTTTTTTTTTTT"
-        my_socket.sendto("90", s_host)
+        my_socket.sendto("90," + str(player_won_id), s_host)
 
 
 def make_text(text_message, x, y, text_color):
@@ -412,9 +412,11 @@ def make_text(text_message, x, y, text_color):
     text_rect.top = y
     if "SPECTATING" not in text_message:
         offset_messages()
-    if "Congrat" in text_message or "won" in text_message:
-        return [text, text_rect, time_to_fade * 2, True]
-    return [text, text_rect, time_to_fade, False]
+    if "Congrat" in text_message or "won this round" in text_message:
+        return [text, text_rect, time_to_fade * 2, 1]
+    elif "won" in text_message and ("game" in text_message or "round(s)" in text_message):
+        return [text, text_rect, time_to_fade * 3, 2]
+    return [text, text_rect, time_to_fade, 0]
 
 
 def offset_messages():
@@ -602,9 +604,17 @@ while running:
         message[2] -= 50
         if message[2] <= 0:
             messages.remove(message)
-            if message[3] and not new:
+            if message[3] == 1 and not new:
                 new = True
                 new_round()
+            if message[3] == 2:
+                print "QUITTING"
+                disconnect()
+                print "DISCONNECTED"
+                my_socket.close()
+                pygame.quit()
+                print "SOCKET AND PYGAME CLOSED"
+                exit(0)
         else:
             # pygame.draw.rect(screen, (255, 255, 255), text_rect)
             screen.blit(text, text_rect)

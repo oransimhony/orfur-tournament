@@ -20,6 +20,13 @@ p2_health = 30
 p3_health = 30
 p4_health = 30
 
+p1_rounds = 0
+p2_rounds = 0
+p3_rounds = 0
+p4_rounds = 0
+
+rounds = [0, 0, 0, 0]
+
 bullets = []
 
 server_socket.bind((host, port))
@@ -391,32 +398,66 @@ while True:
                 server_socket.sendto("hp,4," + str(p4_health) + "," + hitter, addr)
 
         elif code == "90":
-            print "NEW ROUND"
-            restart_values()
-            for addr in addrs:
-                server_socket.sendto("s", addr)
-                if p1 is not None:
-                    server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+            data = msg[2:]
+            data = data.split(",")
+            winner = int(data[1])
+            if 0 < winner < 5:
+                rounds[winner - 1] += 1
+                if int(rounds[winner - 1]) >= 3:
+                    for addr in addrs:
+                        server_socket.sendto("T,Player #" + str(winner) + " won the game!,5,400", addr)
+                        if players["1"] != "":
+                            server_socket.sendto("T,Player #1 won " + str(rounds[0]) + " round(s),5,400", addr)
+                        if players["2"] != "":
+                            server_socket.sendto("T,Player #2 won " + str(rounds[1]) + " round(s),5,400", addr)
+                        if players["3"] != "":
+                            server_socket.sendto("T,Player #3 won " + str(rounds[2]) + " round(s),5,400", addr)
+                        if players["4"] != "":
+                            server_socket.sendto("T,Player #4 won " + str(rounds[3]) + " round(s),5,400", addr)
                 else:
-                    server_socket.sendto("zz,1,None", addr)
-                if p2 is not None:
-                    server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
-                else:
-                    server_socket.sendto("zz,2,None", addr)
-                if p3 is not None:
-                    server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
-                else:
-                    server_socket.sendto("zz,3,None", addr)
-                if p4 is not None:
-                    server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
-                else:
-                    server_socket.sendto("zz,4,None", addr)
-                # server_socket.sendto("hp,1," + str(p1_health) + ",1", addr)
-                # server_socket.sendto("hp,2," + str(p2_health) + ",1", addr)
-                # server_socket.sendto("hp,3," + str(p3_health) + ",1", addr)
-                # server_socket.sendto("hp,4," + str(p4_health) + ",1", addr)
-                # server_socket.sendto("B,[]", addr)
-                server_socket.sendto("T,New Round Starting,5,400", addr)
+                    print "NEW ROUND"
+                    restart_values()
+                    for addr in addrs:
+                        server_socket.sendto("s", addr)
+                        if p1 is not None:
+                            server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
+                        else:
+                            server_socket.sendto("zz,1,None", addr)
+                        if p2 is not None:
+                            server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
+                        else:
+                            server_socket.sendto("zz,2,None", addr)
+                        if p3 is not None:
+                            server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
+                        else:
+                            server_socket.sendto("zz,3,None", addr)
+                        if p4 is not None:
+                            server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
+                        else:
+                            server_socket.sendto("zz,4,None", addr)
+                        # server_socket.sendto("hp,1," + str(p1_health) + ",1", addr)
+                        # server_socket.sendto("hp,2," + str(p2_health) + ",1", addr)
+                        # server_socket.sendto("hp,3," + str(p3_health) + ",1", addr)
+                        # server_socket.sendto("hp,4," + str(p4_health) + ",1", addr)
+                        # server_socket.sendto("B,[]", addr)
+                        server_socket.sendto("T,New Round Starting,5,400", addr)
+
+            # if winner == "1":
+            #     p1_rounds += 1
+            #     if p1_rounds >= 3:
+            #         print "GAME ENDED"
+            # elif winner == "2":
+            #     p2_rounds += 1
+            #     if p2_rounds >= 3:
+            #         print "GAME ENDED"
+            # elif winner == "3":
+            #     p3_rounds += 1
+            #     if p3_rounds >= 3:
+            #         print "GAME ENDED"
+            # elif winner == "4":
+            #     p4_rounds += 1
+            #     if p4_rounds >= 3:
+            #         print "GAME ENDED"
 
         elif code == "99":
             if players["1"] == addr:
