@@ -193,7 +193,7 @@ while True:
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
                     p1[i] = int(data[i])
-                p1[2] = data[2]
+                p1[2] = float(data[2])
                 for addr in addrs:
                     server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
             else:
@@ -206,7 +206,7 @@ while True:
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
                     p2[i] = int(data[i])
-                p2[2] = data[2]
+                p2[2] = float(data[2])
                 for addr in addrs:
                     server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
             else:
@@ -219,7 +219,7 @@ while True:
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
                     p3[i] = int(data[i])
-                p3[2] = data[2]
+                p3[2] = float(data[2])
                 for addr in addrs:
                     server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
             else:
@@ -232,7 +232,7 @@ while True:
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
                     p4[i] = int(data[i])
-                p4[2] = data[2]
+                p4[2] = float(data[2])
                 for addr in addrs:
                     server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
             else:

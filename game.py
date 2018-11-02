@@ -35,8 +35,6 @@ players_health = [p1_health, p2_health, p3_health, p4_health]
 bullets = []
 player_pos = None
 
-# player_rect = Rect(0, 0, 0, 0)
-
 mouse = []
 
 messages = []
@@ -147,8 +145,8 @@ class ReceiveThread(threading.Thread):
                 (data, addr) = my_socket.recvfrom(8192)
             except Exception as ex:
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-                message = template.format(type(ex).__name__, ex.args)
-                print message
+                exception_message = template.format(type(ex).__name__, ex.args)
+                print exception_message
                 data, addr = "", ()
             if data != "":
                 if debug:
@@ -256,15 +254,15 @@ class ReceiveThread(threading.Thread):
                             bullets.append(
                                 [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
                             )
-                        bc = [b for b in bullets if int(b[0]) == int(pid)]
+                        bc = [bull for bull in bullets if int(bull[0]) == int(pid)]
                         shot = len(bc)
 
                 elif code == "T":
                     global messages
-                    text = data[1]
+                    text_m = data[1]
                     x = int(data[2])
                     y = int(data[3])
-                    messages.append(make_text(text, x, y, (33, 33, 33)))
+                    messages.append(make_text(text_m, x, y, (33, 33, 33)))
 
                 elif code == "hp":
                     global dead
@@ -292,25 +290,6 @@ class ReceiveThread(threading.Thread):
                                     break
                                 player_won_id += 1
                         killed(hitter, str(p))
-
-                    # if p == 1:
-                    #     p1_health = hp
-                    # elif p == 2:
-                    #     p2_health = hp
-                    # elif p == 3:
-                    #     p3_health = hp
-                    # elif p == 4:
-                    #     p4_health = hp
-
-            # except Exception as error:
-            #     global running
-            #     print error.message
-            #     print "Thread ERR"
-            #     running = False
-            #     disconnect()
-            #     my_socket.close()
-            #     pygame.quit()
-            #     exit(0)
 
 
 lThread = ReceiveThread("1")
@@ -341,7 +320,6 @@ def initial_connect():
 
 def send_player_pos():
     s = ""
-    # Send Player coordinates
     for player_position in player_positions:
         if player_position is player_pos:
             for co in player_position:
@@ -351,7 +329,6 @@ def send_player_pos():
 
 def send_player_keys():
     s = ""
-    # Send Keys
     for key in keys:
         s += str(key) + ","
     my_socket.sendto("2" + str(pid) + s[:-1], s_host)
@@ -366,7 +343,7 @@ def send_bullet(bullet_info):
 
 
 def send_mouse(angle):
-    my_socket.sendto("6" + pid + str(angle), s_host)
+    my_socket.sendto("6" + str(pid) + str(angle), s_host)
 
 
 def delete_bullet(bullet_info):
@@ -382,7 +359,7 @@ def disconnect():
 
 def enemy_hit(enemy_id, hitter):
     if int(hitter) == int(pid):
-        my_socket.sendto("7" + str(enemy_id) + "," + pid, s_host)
+        my_socket.sendto("7" + str(enemy_id) + "," + str(pid), s_host)
 
 
 def killed(killer, killed_p):
@@ -406,25 +383,26 @@ def new_round():
 
 
 def make_text(text_message, x, y, text_color):
-    text = font.render(text_message, True, text_color, (255, 255, 255))
-    text_rect = text.get_rect()
-    text_rect.left = x
-    text_rect.top = y
+    rendered_text = font.render(text_message, True, text_color, (255, 255, 255))
+    rendered_text_rect = rendered_text.get_rect()
+    rendered_text_rect.left = x
+    rendered_text_rect.top = y
     if "SPECTATING" not in text_message:
         offset_messages()
     if "Congrat" in text_message or "won this round" in text_message:
-        return [text, text_rect, time_to_fade * 2, 1]
+        return [rendered_text, rendered_text_rect, time_to_fade * 2, 1]
     elif "won" in text_message and ("game" in text_message or "round(s)" in text_message):
-        return [text, text_rect, time_to_fade * 3, 2]
-    return [text, text_rect, time_to_fade, 0]
+        return [rendered_text, rendered_text_rect, time_to_fade * 3, 2]
+    return [rendered_text, rendered_text_rect, time_to_fade, 0]
 
 
 def offset_messages():
-    index = 0
-    for message in messages:
-        text_rect = message[1]
-        text_rect.top -= text_space
-        index += 1
+    message_index = 0
+    for t_message in messages:
+        t_message_rect = t_message[1]
+        t_message_rect.top -= text_space
+        message_index += 1
+
 
 pygame.init()
 pygame.mixer.init()
@@ -440,20 +418,10 @@ frame = 0
 
 player_img = pygame.image.load('player1.png')
 player_img = pygame.transform.scale(player_img, (62, 41))
-# bullet_img = pygame.image.load('bullet1.png')
-# bullet_img = pygame.transform.scale(bullet_img, (14, 6))
 bullet_img = pygame.image.load('bullet.png').convert()
 bullet_img.set_colorkey((255, 255, 255))
 bullet_img = pygame.transform.scale(bullet_img, (13, 5))
 bg = random.randint(1, 5)
-# if bg == 1:
-#     background_img = pygame.image.load('bg1.jpg')
-# elif bg == 2:
-#     background_img = pygame.image.load('bg2.png')
-# elif bg == 3:
-#     background_img = pygame.image.load('bg3.png')
-# else:
-#     background_img = pygame.image.load('bg4.jpg')
 background_img = pygame.image.load('bg1.jpg')
 background_img = pygame.transform.scale(background_img, (width, height))
 youdied_img = pygame.image.load('youDied.jpg')
@@ -475,10 +443,9 @@ initial_connect()
 
 x_offset = 34
 y_offset = 12
-offset = pygame.math.Vector2((x_offset, y_offset))
-
-# obstacles = [[300, 200, 50, 70], [360, 280, 50, 70]]
-# obstacles = [pygame.draw.rect(screen, (300, 200), (255, 0, 0), (50, 70)), pygame.draw.rect(screen, (150, 600), (255, 0, 0), (34, 57))]
+offset = pygame.math.Vector2()
+offset.x = x_offset
+offset.y = y_offset
 
 if pid == "1":
     if p1 is not None:
@@ -515,29 +482,9 @@ running = 1
 exitcode = 0
 while running:
     player_rect = screen.blit(screen, (0, 0))
-    try:
-        screen.blit(background_img, (0, 0))
-        # if dead:
-        #     screen.blit(youdied_img, (0, 0))
-        #     time.sleep(5000)
-        #     print "QUITTING"
-        #     disconnect()
-        #     print "DISCONNECTED"
-        #     my_socket.close()
-        #     pygame.quit()
-        #     print "SOCKET AND PYGAME CLOSED"
-        #     exit(0)
-    except Exception as e:
-        print "QUITTING"
-        disconnect()
-        print "DISCONNECTED"
-        my_socket.close()
-        pygame.quit()
-        print "SOCKET AND PYGAME CLOSED"
-        exit(0)
-    # new_bad_guys = []
+    screen.blit(background_img, (0, 0))
     players_rects = []
-    id = 1
+    p_id = 1
     for playerp in player_positions:
         if playerp is player_pos:
             if playerp is not None:
@@ -546,36 +493,27 @@ while running:
                 playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
                 playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
                 screen.blit(playerrot, playerpos1)
-                players_rects.append([screen.blit(playerrot, playerpos1), id])
+                players_rects.append([screen.blit(playerrot, playerpos1), p_id])
                 player_rect = screen.blit(playerrot, playerpos1)
                 if position != mouse:
                     send_mouse(playerp[2])
                     mouse = position
                     point1 = (mouse[0], mouse[1])
-                    # point3 = (player_pos[0] + x_offset * ((360 - playerp[2] * 57.29) % 360), player_pos[1] + y_offset * ((360 - playerp[2] * 57.29) % 360))
-                    point3 = (player_pos[0] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).x, player_pos[1] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).y)
+                    point3 = (player_pos[0] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).x,
+                              player_pos[1] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).y)
                     point2 = (point1[0], point3[1])
             else:
-                players_rects.append([None, id])
-            id += 1
+                players_rects.append([None, p_id])
+            p_id += 1
         else:
             if playerp is not None:
                 playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
                 playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
                 screen.blit(playerrot, playerpos1)
-                players_rects.append([screen.blit(playerrot, playerpos1), id])
-                # new_bad_guys.append([screen.blit(playerrot, playerpos1), id])
+                players_rects.append([screen.blit(playerrot, playerpos1), p_id])
             else:
-                # new_bad_guys.append(bad_guys[id - 2])
-                players_rects.append([None, id])
-            id += 1
-    # bad_guys = new_bad_guys
-    # ind = 0
-    # for obstacle in obstacles:
-    #     pygame.draw.rect(screen, (0, 0, 0), Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[3]))
-    #     pygame.display.flip()
-    #     # screen.blit(obstacle, obstacles_coord[ind])
-    #     ind += 1
+                players_rects.append([None, p_id])
+            p_id += 1
 
     for bullet in bullets:
         if bullet[0] == pid:
@@ -589,8 +527,8 @@ while running:
                 try:
                     bullets.pop(index)
                     shot -= 1 if shot > 0 else 0
-                except:
-                    print "ERR"
+                except IndexError as e:
+                    print e
             else:
                 send_bullet(bullet)
             index += 1
@@ -616,49 +554,27 @@ while running:
                 print "SOCKET AND PYGAME CLOSED"
                 exit(0)
         else:
-            # pygame.draw.rect(screen, (255, 255, 255), text_rect)
             screen.blit(text, text_rect)
 
-    if dead:
-        # print "SPECTATING"
-        text, text_rect, time_to_fade, special = make_text("SPECTATING", width / 2, 700, (33, 33, 33))  # (255, 230, 153)
-        # print text, text_rect
-        screen.blit(text, text_rect)
-
     pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
-    pygame.draw.rect(screen, (255, 0, 0), (20 + int(100 * (float(health) / max_health)), 530, int(100 * (1 - (float(health) / max_health))), 20))
+    pygame.draw.rect(screen, (255, 0, 0),
+                     (20 + int(100 * (float(health) / max_health)), 530,
+                      int(100 * (1 - (float(health) / max_health))), 20))
     pygame.draw.rect(screen, (0, 0, 0), (20, 530, 100, 20), 5)
 
     for i in xrange(5 - shot):
         screen.blit(ammo, (20 + i * 15, 560))
-
-    # for badguy, player_id in bad_guys:
-    #     for bullet in bullets:
-    #         bullrect = pygame.Rect(bullet_img.get_rect())
-    #         bullrect.left = bullet[2]
-    #         bullrect.top = bullet[3]
-    #         if badguy.colliderect(bullrect):
-    #             # print "HIT"
-    #             if int(player_id) != int(bullet[0]) and player_positions[player_id - 1] is not None:
-    #                 players_health[player_id - 1] -= 1
-    #                 enemy_hit(player_id)
-    #                 if bullet in bullets:
-    #                     bullets.remove(bullet)
-    #                 shot -= 1 if shot > 0 else 0
-    #                 delete_bullet(bullet)
 
     if debug:
         for players_rect, player_id in players_rects:
             if players_rect is not None:
                 pygame.draw.rect(screen, (255, 0, 0), players_rect, 1)
         if player_pos is not None:
-            # pygame.draw.line(screen, (0, 255, 0), (mouse[0], mouse[1]), (player_pos[0] + 34, player_pos[1] + 12))
             pygame.draw.line(screen, (0, 255, 0), point1, point3)
             pygame.draw.line(screen, (0, 255, 0), point1, point2)
             pygame.draw.line(screen, (0, 255, 0), point3, point2)
             pygame.draw.circle(screen, (0, 0, 255), (player_pos[0], player_pos[1]), 1)
             pygame.draw.circle(screen, (0, 0, 255), (int(point3[0]), int(point3[1])), 1)
-            # pygame.draw.polygon(screen, (0, 255, 0), [[mouse[0], mouse[1]], [player_pos[0], player_pos[1]], [[player_pos[0], mouse[1]]]], 1)
 
     for players_rect, player_id in players_rects:
         if players_rect is not None:
@@ -667,7 +583,6 @@ while running:
                 bullrect.left = bullet[2]
                 bullrect.top = bullet[3]
                 if players_rect.colliderect(bullrect):
-                    # print "HIT"
                     if int(player_id) != int(bullet[0]) and player_positions[player_id - 1] is not None:
                         players_health[player_id - 1] -= 1
                         enemy_hit(player_id, bullet[0])
@@ -675,9 +590,6 @@ while running:
                             bullets.remove(bullet)
                         shot -= 1 if shot > 0 else 0
                         delete_bullet(bullet)
-
-    # if dead:
-    #     screen.blit(youdied_img, (0, 0))
 
     pygame.display.flip()
 
@@ -729,7 +641,7 @@ while running:
             if position[1] > player_pos[1] and position[0] < player_pos[0]:
                 ang = -ang
             b = [pid,
-                 player_pos[2],  # math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
+                 player_pos[2],
                  int(point3[0]),
                  int(point3[1])]
             if shot < 5:
@@ -755,45 +667,11 @@ while running:
         direction = 3
         moved = True
 
-    #
-    # if keys[0]:
-    #     player_pos[1] = player_pos[1] - player_speed if player_pos[1] - player_speed - player_rect.height / 2 > 0 else 0
-    #     direction = 0
-    #     moved = True
-    # elif keys[2]:
-    #     player_pos[1] = player_pos[1] + player_speed if player_pos[1] + player_speed + player_rect.height / 2 < height else height
-    #     direction = 2
-    #     moved = True
-    # if keys[1]:
-    #     player_pos[0] = player_pos[0] - player_speed if player_pos[0] - player_speed - player_rect.width / 2 > 0 else 0
-    #     direction = 1
-    #     moved = True
-    # elif keys[3]:
-    #     player_pos[0] = player_pos[0] + player_speed if player_pos[0] + player_speed + player_rect.width / 2 < width else width
-    #     direction = 3
-    #     moved = True
-
-    # for obstacle in obstacles:
-    #     if player_rect.colliderect(obstacle):
-    #         print "COLLIDED", direction
-    #         if direction == 0:
-    #             player_pos[1] += player_speed
-    #         elif direction == 1:
-    #             player_pos[0] += player_speed
-    #         elif direction == 2:
-    #             player_pos[1] -= player_speed
-    #         elif direction == 3:
-    #             player_pos[0] += player_speed
-    #         moved = False
     if moved:
         send_player_pos()
         point1 = (mouse[0], mouse[1])
-        point3 = (player_pos[0] + x_offset, player_pos[1] + y_offset)
-        # point3 = (player_pos[0] + x_offset * ((360 - player_pos[2] * 57.29) % 360),
-        #           player_pos[1] + y_offset * ((360 - player_pos[2] * 57.29) % 360))
         point3 = (player_pos[0] + offset.rotate(-(360 - player_pos[2] * 57.29) % 360).x,
                   player_pos[1] + offset.rotate(-(360 - player_pos[2] * 57.29) % 360).y)
-
         point2 = (point1[0], point3[1])
 
     clock.tick(30)
