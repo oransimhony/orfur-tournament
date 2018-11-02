@@ -137,6 +137,8 @@ class ReceiveThread(threading.Thread):
         global player_positions
         global player_pos
         global bullets
+        global shot
+        global bc
 
         if debug:
             print "Listening"
@@ -254,6 +256,8 @@ class ReceiveThread(threading.Thread):
                             bullets.append(
                                 [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
                             )
+                        bc = [b for b in bullets if int(b[0]) == int(pid)]
+                        shot = len(bc)
 
                 elif code == "T":
                     global messages
@@ -580,8 +584,11 @@ while running:
             bullet[2] += int(velx)
             bullet[3] += int(vely)
             if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
-                bullets.pop(index)
-                shot -= 1 if shot > 0 else 0
+                try:
+                    bullets.pop(index)
+                    shot -= 1 if shot > 0 else 0
+                except:
+                    print "ERR"
             else:
                 send_bullet(bullet)
             index += 1
@@ -689,9 +696,12 @@ while running:
                     keys[2] = True
                 elif event.key == K_d:
                     keys[3] = True
-            elif event.key == K_f:
+            if event.key == K_f:
                 flags ^= FULLSCREEN
                 pygame.display.set_mode((width, height), flags)
+            elif event.key == K_p:
+                bc = [bullet for bullet in bullets if int(bullet[0]) == int(pid)]
+                print bullets, shot, len(bc)
         if event.type == pygame.KEYUP and not dead:
             if event.key == K_w:
                 keys[0] = False
@@ -702,6 +712,8 @@ while running:
             elif event.key == K_d:
                 keys[3] = False
         if event.type == pygame.MOUSEBUTTONDOWN and not dead:
+            bc = [bullet for bullet in bullets if int(bullet[0]) == int(pid)]
+            shot = len(bc)
             position = pygame.mouse.get_pos()
             ang = math.atan2(position[1] - (player_pos[1] + y_offset), position[0] - (player_pos[0] + x_offset))
             if position[1] > player_pos[1] and position[0] < player_pos[0]:
@@ -710,8 +722,7 @@ while running:
                  player_pos[2],  # math.atan2(position[1] - (player_pos[1] + 31), position[0] - (player_pos[0] + 20)),
                  int(point3[0]),
                  int(point3[1])]
-            bc = [bullet for bullet in bullets if bullet[0] == pid]
-            if len(bc) <= 3:
+            if shot < 5:
                 send_bullet(b)
                 shot += 1
 
@@ -765,7 +776,6 @@ while running:
     #             player_pos[0] += player_speed
     #         moved = False
     if moved:
-        print player_rect
         send_player_pos()
         point1 = (mouse[0], mouse[1])
         point3 = (player_pos[0] + x_offset, player_pos[1] + y_offset)
