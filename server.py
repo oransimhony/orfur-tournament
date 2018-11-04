@@ -30,7 +30,7 @@ rounds = [0, 0, 0, 0]
 bullets = []
 
 server_socket.bind((host, port))
-# print "Server bounded."
+print "Server bounded."
 
 players = {"1": "", "2": "", "3": "", "4": ""}
 addrs = []

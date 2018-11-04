@@ -2,20 +2,27 @@ import math
 import socket
 import threading
 import random
+import sys
 
 import pygame
 from pygame.locals import *
 
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-hostname = raw_input("Hostname: ")
-if "l" in hostname:
-    s_host = ("127.0.0.1", 8888)
-else:
-    s_host = (hostname, 8888)
+print "Address: ", sys.argv[1]
 
-debug = raw_input("Debug Mode? (Y/N)")
-debug = True if "y" in debug.lower() else False
+s_host = (sys.argv[1], 8888)
+
+
+# hostname = raw_input("Hostname: ")
+# if "l" in hostname:
+#     s_host = ("127.0.0.1", 8888)
+# else:
+#     s_host = (hostname, 8888)
+#
+# debug = raw_input("Debug Mode? (Y/N)")
+# debug = True if "y" in debug.lower() else False
+debug = False
 
 pid = 0
 dead = False
