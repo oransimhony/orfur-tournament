@@ -180,9 +180,8 @@ def make_text(text_message, x, y, text_color, font=title_font):
 #     return button_rect, button_label
 
 def save_server(name, address):
-    print "SAVING %s %s" % (name, address)
-    print "\n%s,%s" % (name, address)
     if name != "" and address != "":
+        print "SAVING %s %s" % (name, address)
         with open('servers.txt', 'a') as a_file:
             a_file.write("\n%s,%s" % (name, address))
 
@@ -298,10 +297,12 @@ while start:
                 elif event.key == K_DOWN:
                     scene_manager.get_scene().down()
                 elif event.key == K_RETURN:
-                    print "ENTER"
                     if scene_manager.get_scene().highlighted_button_id == 0:
-                        print "SHOULD SAVE"
                         save_server(scene_manager.get_scene().server_name, scene_manager.get_scene().server_address)
+                        scene_manager.get_scene().server_name = ""
+                        scene_manager.get_scene().server_address = ""
+                        scene_manager.get_scene().highlighted_text_box_id = 0
+                        scene_manager.load_scene(start_scene)
                     elif scene_manager.get_scene().highlighted_button_id == 1:
                         scene_manager.load_scene(start_scene)
                     elif scene_manager.get_scene().highlighted_button_id == 2:
@@ -334,6 +335,8 @@ while start:
                         scene_manager.get_scene().server_name += '9'
                     elif event.key == K_KP_PERIOD:
                         scene_manager.get_scene().server_name += '.'
+                    elif event.key == K_TAB:
+                        scene_manager.get_scene().down()
                     else:
                         scene_manager.get_scene().server_name += chr(event.key) if 31 < event.key < 128 else ""
 
@@ -362,6 +365,8 @@ while start:
                         scene_manager.get_scene().server_address += '9'
                     elif event.key == K_KP_PERIOD:
                         scene_manager.get_scene().server_address += '.'
+                    elif event.key == K_TAB:
+                        scene_manager.get_scene().up()
                     else:
                         scene_manager.get_scene().server_address += chr(event.key) if 31 < event.key < 128 else ""
 
@@ -403,7 +408,6 @@ while start:
                 elif event.key == K_s and scene_manager.get_scene().name == "START":
                     address = scene_manager.get_scene().servers[scene_manager.get_scene().highlighted_server_id].address
                     command = "python game.py %s" % (address)
-                    print command
                     subprocess.Popen(command)
 
                 elif event.key == K_d and scene_manager.get_scene().name == "START":

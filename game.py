@@ -8,10 +8,11 @@ import pygame
 from pygame.locals import *
 
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-print "Address: ", sys.argv[1]
-
-s_host = (sys.argv[1], 8888)
+try:
+    print "Address: ", sys.argv[1]
+    s_host = (sys.argv[1], 8888)
+except:
+    s_host = ("127.0.0.1", 8888)
 
 
 # hostname = raw_input("Hostname: ")
@@ -413,6 +414,7 @@ def offset_messages():
 
 pygame.init()
 pygame.mixer.init()
+pygame.mouse.set_visible(False)
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Top Down Shooter")
@@ -568,6 +570,16 @@ while running:
                      (20 + int(100 * (float(health) / max_health)), 530,
                       int(100 * (1 - (float(health) / max_health))), 20))
     pygame.draw.rect(screen, (0, 0, 0), (20, 530, 100, 20), 5)
+
+    pygame.draw.line(screen, (0, 0, 0), (mouse[0] - 17, mouse[1]), (mouse[0] - 3, mouse[1]), 5)
+    pygame.draw.line(screen, (0, 0, 0), (mouse[0] + 17, mouse[1]), (mouse[0] + 3, mouse[1]), 5)
+    pygame.draw.line(screen, (0, 0, 0), (mouse[0], mouse[1] + 17), (mouse[0], mouse[1] + 3), 5)
+    pygame.draw.line(screen, (0, 0, 0), (mouse[0], mouse[1] - 17), (mouse[0], mouse[1] - 3), 5)
+
+    pygame.draw.line(screen, (0, 255, 0), (mouse[0] - 15, mouse[1]), (mouse[0] - 5, mouse[1]), 2)
+    pygame.draw.line(screen, (0, 255, 0), (mouse[0] + 15, mouse[1]), (mouse[0] + 5, mouse[1]), 2)
+    pygame.draw.line(screen, (0, 255, 0), (mouse[0], mouse[1] + 15), (mouse[0], mouse[1] + 5), 2)
+    pygame.draw.line(screen, (0, 255, 0), (mouse[0], mouse[1] - 15), (mouse[0], mouse[1] - 5), 2)
 
     for i in xrange(5 - shot):
         screen.blit(ammo, (20 + i * 15, 560))
