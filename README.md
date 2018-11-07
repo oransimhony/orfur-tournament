@@ -1,4 +1,4 @@
-# Fron Tournament
+# Orfur Tournament
 
 A multiplayer top-down shooter game made in Python with PyGame :sparkles:
 
