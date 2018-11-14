@@ -14,7 +14,6 @@ try:
 except:
     s_host = ("127.0.0.1", 8888)
 
-
 # hostname = raw_input("Hostname: ")
 # if "l" in hostname:
 #     s_host = ("127.0.0.1", 8888)
@@ -43,11 +42,14 @@ players_health = [p1_health, p2_health, p3_health, p4_health]
 bullets = []
 player_pos = None
 
-mouse = []
+mouse = [0, 0]
 
 messages = []
 
 player_won_id = -1
+
+collectible_timer = 5000
+collectibles = []
 
 
 def restart_values():
@@ -68,6 +70,7 @@ def restart_values():
     global health
     global shot
     global keys
+    global collectibles
 
     messages = []
 
@@ -124,6 +127,7 @@ def restart_values():
     shot = 0
 
     bullets = []
+    collectibles = []
 
     new = False
     dead = []
@@ -254,6 +258,7 @@ class ReceiveThread(threading.Thread):
                 elif code == "B":
                     if data[1] != "[]":
                         bullets_data = data[1][1:-1]
+                        print bullets_data
                         bullets_data = bullets_data.split("#")
                         bullets = []
                         for bullet_data in bullets_data:
@@ -278,26 +283,27 @@ class ReceiveThread(threading.Thread):
                     p = int(data[1])
                     hp = int(data[2])
                     hitter = data[3]
-                    players_health[p - 1] = hp
-                    if int(p) == int(pid):
-                        health = hp
-                    if players_health[p - 1] <= 0:
-                        player_positions[p - 1] = None
+                    if hp <= max_health:
+                        players_health[p - 1] = hp
                         if int(p) == int(pid):
-                            dead = True
-                        alive = 0
-                        for pos in player_positions:
-                            if pos is not None:
-                                alive += 1
-                        if alive == 1:
-                            global player_won_id
-                            player_won_id = 1
+                            health = hp
+                        if players_health[p - 1] <= 0:
+                            player_positions[p - 1] = None
+                            if int(p) == int(pid):
+                                dead = True
+                            alive = 0
                             for pos in player_positions:
                                 if pos is not None:
-                                    won(player_won_id)
-                                    break
-                                player_won_id += 1
-                        killed(hitter, str(p))
+                                    alive += 1
+                            if alive == 1:
+                                global player_won_id
+                                player_won_id = 1
+                                for pos in player_positions:
+                                    if pos is not None:
+                                        won(player_won_id)
+                                        break
+                                    player_won_id += 1
+                            killed(hitter, str(p))
 
 
 lThread = ReceiveThread("1")
@@ -368,6 +374,9 @@ def disconnect():
 def enemy_hit(enemy_id, hitter):
     if int(hitter) == int(pid):
         my_socket.sendto("7" + str(enemy_id) + "," + str(pid), s_host)
+
+def got_collectible():
+    my_socket.sendto("8" + str(pid), s_host)
 
 
 def killed(killer, killed_p):
@@ -565,6 +574,13 @@ while running:
         else:
             screen.blit(text, text_rect)
 
+    # for collectible in collectibles:
+    #     pygame.draw.circle(screen, (0, 100, 0), (collectible[0], collectible[1]), 10)
+    #     pygame.draw.circle(screen, (0, 255, 0), (collectible[0], collectible[1]), 8)
+    #     if collectible[2].colliderect(player_rect):
+    #         collectibles.remove(collectible)
+    #         got_collectible()
+
     pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
     pygame.draw.rect(screen, (255, 0, 0),
                      (20 + int(100 * (float(health) / max_health)), 530,
@@ -694,3 +710,10 @@ while running:
         point2 = (point1[0], point3[1])
 
     clock.tick(30)
+    # collectible_timer -= 50
+    # if collectible_timer <= 50:
+    #     collectible_timer = 5000
+    #     x = random.randint(100, width - 100)
+    #     y = random.randint(100, height - 100)
+    #     collectibles.append((x, y, pygame.draw.circle(screen, (0, 100, 0), (x, y), 10)))
+    #     print "COLLECTIBLE"

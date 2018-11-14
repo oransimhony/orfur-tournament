@@ -29,6 +29,8 @@ rounds = [0, 0, 0, 0]
 
 bullets = []
 
+debug = True
+
 server_socket.bind((host, port))
 print "Server bounded."
 
@@ -91,11 +93,12 @@ while True:
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
         message = template.format(type(ex).__name__, ex.args)
-        # print message
+        print message
         msg, addr = "", ()
     if msg != "":
         code = msg[:2]
-        # print "start - ", msg, code, addr
+        # if debug:
+            # print "start - ", msg, code, addr
         if code == "00":
             if addr not in addrs:
                 if players["1"] == "":
@@ -199,10 +202,11 @@ while True:
             else:
                 p1 = None
         elif code == "12":
-            # print 'Getting pos#2'
+            print 'Getting pos#2'
             data = msg[2:]
+            print p2
+            print data, addr
             if data is not None and data != "" and p2 is not None:
-                # print data, addr
                 data = data.split(',')
                 for i in xrange(len(data) - 1):
                     p2[i] = int(data[i])
@@ -396,6 +400,26 @@ while True:
             p4_health -= 1
             for addr in addrs:
                 server_socket.sendto("hp,4," + str(p4_health) + "," + hitter, addr)
+
+        elif code == "81":
+            p1_health += 2
+            for addr in addrs:
+                server_socket.sendto("hp,1," + str(p1_health) + ",C", addr)
+
+        elif code == "82":
+            p2_health += 2
+            for addr in addrs:
+                server_socket.sendto("hp,2," + str(p2_health) + ",C", addr)
+
+        elif code == "83":
+            p3_health += 2
+            for addr in addrs:
+                server_socket.sendto("hp,3," + str(p3_health) + ",C", addr)
+
+        elif code == "84":
+            p4_health += 2
+            for addr in addrs:
+                server_socket.sendto("hp,4," + str(p4_health) + ",C", addr)
 
         elif code == "90":
             data = msg[2:]
