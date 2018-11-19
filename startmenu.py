@@ -262,16 +262,14 @@ start_scene = Scene("START", [make_text("Start Screen", 400, 40, white),
                               make_text("Choose the highlighted server using the S key",
                                         10, 85, white, font=instruction_font),
                               make_text("Delete the highlighted server using the D key",
-                                        10, 110, white, font=instruction_font),
-                              make_text("But don't delete localhost :)",
-                                        10, 135, white, font=instruction_font)
+                                        10, 110, white, font=instruction_font)
                               ],
                     [make_text("Add a new server", 150, 500, highlighted, font=label_font),
                      make_text("Return to Main Menu", 450, 500, white, font=label_font),
                      make_text("Quit", 650, 500, white, font=label_font)],
                     [("Add a new server", 150, 500), ("Return to Main Menu", 450, 500), ("Quit", 650, 500)])
 
-add_server_scene = AddScene("ADD", [], [make_text("Save server", 150, 500, highlighted, font=label_font),
+add_server_scene = AddScene("ADD", [], [make_text("Save Server", 150, 500, highlighted, font=label_font),
                                         make_text("Return to Server List", 420, 500, white, font=label_font),
                                         make_text("Quit", 650, 500, white, font=label_font)],
                             [("Save Server", 150, 500), ("Return to Server List", 420, 500), ("Quit", 650, 500)])

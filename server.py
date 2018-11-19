@@ -1,4 +1,5 @@
 import socket
+import pickle
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -28,6 +29,7 @@ p4_rounds = 0
 rounds = [0, 0, 0, 0]
 
 bullets = []
+collectibles = []
 
 debug = True
 
@@ -400,6 +402,12 @@ while True:
             p4_health -= 1
             for addr in addrs:
                 server_socket.sendto("hp,4," + str(p4_health) + "," + hitter, addr)
+
+        elif code == "80":
+            data, address = server_socket.recvfrom(2048)
+            collectibles = pickle.loads(data)
+            for addr in addrs:
+                server_socket.sendto("cb," + pickle.dumps(collectibles), addr)
 
         elif code == "81":
             p1_health += 2

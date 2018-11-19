@@ -3,6 +3,7 @@ import socket
 import threading
 import random
 import sys
+import pickle
 
 import pygame
 from pygame.locals import *
@@ -258,7 +259,6 @@ class ReceiveThread(threading.Thread):
                 elif code == "B":
                     if data[1] != "[]":
                         bullets_data = data[1][1:-1]
-                        print bullets_data
                         bullets_data = bullets_data.split("#")
                         bullets = []
                         for bullet_data in bullets_data:
@@ -304,6 +304,10 @@ class ReceiveThread(threading.Thread):
                                         break
                                     player_won_id += 1
                             killed(hitter, str(p))
+
+                elif code == "cb":
+                    global collectibles
+                    collectibles = pickle.loads(data[1])
 
 
 lThread = ReceiveThread("1")
@@ -375,8 +379,14 @@ def enemy_hit(enemy_id, hitter):
     if int(hitter) == int(pid):
         my_socket.sendto("7" + str(enemy_id) + "," + str(pid), s_host)
 
+
 def got_collectible():
     my_socket.sendto("8" + str(pid), s_host)
+
+
+def send_collectibles():
+    my_socket.sendto("80", s_host)
+    my_socket.sendto(pickle.dumps(collectibles), s_host)
 
 
 def killed(killer, killed_p):
@@ -574,12 +584,12 @@ while running:
         else:
             screen.blit(text, text_rect)
 
-    # for collectible in collectibles:
-    #     pygame.draw.circle(screen, (0, 100, 0), (collectible[0], collectible[1]), 10)
-    #     pygame.draw.circle(screen, (0, 255, 0), (collectible[0], collectible[1]), 8)
-    #     if collectible[2].colliderect(player_rect):
-    #         collectibles.remove(collectible)
-    #         got_collectible()
+    for collectible in collectibles:
+        pygame.draw.circle(screen, (0, 100, 0), (collectible[0], collectible[1]), 10)
+        pygame.draw.circle(screen, (0, 255, 0), (collectible[0], collectible[1]), 8)
+        if collectible[2].colliderect(player_rect):
+            collectibles.remove(collectible)
+            got_collectible()
 
     pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
     pygame.draw.rect(screen, (255, 0, 0),
@@ -710,10 +720,10 @@ while running:
         point2 = (point1[0], point3[1])
 
     clock.tick(30)
-    # collectible_timer -= 50
-    # if collectible_timer <= 50:
-    #     collectible_timer = 5000
-    #     x = random.randint(100, width - 100)
-    #     y = random.randint(100, height - 100)
-    #     collectibles.append((x, y, pygame.draw.circle(screen, (0, 100, 0), (x, y), 10)))
-    #     print "COLLECTIBLE"
+    collectible_timer -= 50
+    if collectible_timer <= 50:
+        collectible_timer = 5000
+        x = random.randint(100, width - 100)
+        y = random.randint(100, height - 100)
+        collectibles.append((x, y, pygame.draw.circle(screen, (0, 100, 0), (x, y), 10)))
+        send_collectibles()
