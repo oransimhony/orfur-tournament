@@ -405,7 +405,27 @@ while True:
 
         elif code == "80":
             data, address = server_socket.recvfrom(2048)
-            collectibles = pickle.loads(data)
+            try:
+                collectible = pickle.loads(data)
+                collectibles.append(collectible)
+            except KeyError:
+                print 'KEY_ERROR'
+            except IndexError:
+                print 'INDEX_ERROR'
+            print collectibles
+            for addr in addrs:
+                server_socket.sendto("cb," + pickle.dumps(collectibles), addr)
+
+        elif code == "85":
+            data = msg[3:]
+            try:
+                collectible = pickle.loads(data)
+                collectibles.remove(collectible)
+            except KeyError:
+                print 'KEY_ERROR'
+            except IndexError:
+                print 'INDEX_ERROR'
+            print collectibles
             for addr in addrs:
                 server_socket.sendto("cb," + pickle.dumps(collectibles), addr)
 

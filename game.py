@@ -380,13 +380,14 @@ def enemy_hit(enemy_id, hitter):
         my_socket.sendto("7" + str(enemy_id) + "," + str(pid), s_host)
 
 
-def got_collectible():
+def got_collectible(acquired_collectible):
     my_socket.sendto("8" + str(pid), s_host)
+    my_socket.sendto("85," + pickle.dumps(acquired_collectible), s_host)
 
 
-def send_collectibles():
+def send_collectible(created_collectible):
     my_socket.sendto("80", s_host)
-    my_socket.sendto(pickle.dumps(collectibles), s_host)
+    my_socket.sendto(pickle.dumps(created_collectible), s_host)
 
 
 def killed(killer, killed_p):
@@ -589,7 +590,7 @@ while running:
         pygame.draw.circle(screen, (0, 255, 0), (collectible[0], collectible[1]), 8)
         if collectible[2].colliderect(player_rect):
             collectibles.remove(collectible)
-            got_collectible()
+            got_collectible(collectible)
 
     pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
     pygame.draw.rect(screen, (255, 0, 0),
@@ -726,4 +727,4 @@ while running:
         x = random.randint(100, width - 100)
         y = random.randint(100, height - 100)
         collectibles.append((x, y, pygame.draw.circle(screen, (0, 100, 0), (x, y), 10)))
-        send_collectibles()
+        send_collectible((x, y, pygame.draw.circle(screen, (0, 100, 0), (x, y), 10)))
