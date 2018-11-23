@@ -100,7 +100,7 @@ while True:
     if msg != "":
         code = msg[:2]
         # if debug:
-            # print "start - ", msg, code, addr
+        # print "start - ", msg, code, addr
         if code == "00":
             if addr not in addrs:
                 if players["1"] == "":
@@ -302,46 +302,54 @@ while True:
             # print 'Getting bullet'
             data = msg[2:]
             # print data, addr
-            data = data.split(',')
-            if [str(data[0]), float(data[1]), int(data[2]), int(data[3])] not in bullets:
-                bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
-                s = "["
-                for bullet in bullets:
-                    s += "["
-                    for n in bullet:
-                        s += str(n) + "$"
-                    s = s[:-1]
-                    s += "]#"
-                s = s[:-1]
-                s += "]"
+            # data = data.split(',')
+            # if [str(data[0]), float(data[1]), int(data[2]), int(data[3])] not in bullets:
+            #     bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
+            #     s = "["
+            #     for bullet in bullets:
+            #         s += "["
+            #         for n in bullet:
+            #             s += str(n) + "$"
+            #         s = s[:-1]
+            #         s += "]#"
+            #     s = s[:-1]
+            #     s += "]"
+
+            bullet = pickle.loads(data)
+            if bullet not in bullets:
+                bullets.append(bullet)
                 for addr in addrs:
-                    server_socket.sendto("B," + s, addr)
+                    server_socket.sendto("B," + pickle.dumps(bullets), addr)
 
         elif code == "50":
-            length = len(bullets)
-            # print 'Deleting bullet'
+            # length = len(bullets)
+            # # print 'Deleting bullet'
+            # data = msg[2:]
+            # # print data, addr
+            # data = data.split(',')
+            # # print data, bullets
+            # try:
+            #     bullets.remove([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
+            # except ValueError as e:
+            #     print e.message
+            #     # print "DELETE FAILED"
+            # s = "["
+            # for bullet in bullets:
+            #     s += "["
+            #     for n in bullet:
+            #         s += str(n) + "$"
+            #     s = s[:-1]
+            #     s += "]#"
+            # s = s[:-1] if len(s) > 1 else s
+            # s += "]"
             data = msg[2:]
-            # print data, addr
-            data = data.split(',')
-            # print data, bullets
-            try:
-                bullets.remove([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
-            except ValueError as e:
-                print e.message
-                # print "DELETE FAILED"
-            s = "["
-            for bullet in bullets:
-                s += "["
-                for n in bullet:
-                    s += str(n) + "$"
-                s = s[:-1]
-                s += "]#"
-            s = s[:-1] if len(s) > 1 else s
-            s += "]"
+            bullet = pickle.loads(data)
+            if bullet in bullets:
+                bullets.remove(bullet)
             for addr in addrs:
                 # print len("B," + s)
                 # print "B," + s
-                server_socket.sendto("B," + s, addr)
+                server_socket.sendto("B," + pickle.dumps(bullets), addr)
 
         elif code == "61":
             data = msg[2:]
@@ -407,12 +415,13 @@ while True:
             data, address = server_socket.recvfrom(2048)
             try:
                 collectible = pickle.loads(data)
-                collectibles.append(collectible)
+                if collectible not in collectibles:
+                    collectibles.append(collectible)
             except KeyError:
                 print 'KEY_ERROR'
             except IndexError:
                 print 'INDEX_ERROR'
-            print collectibles
+            # print collectibles
             for addr in addrs:
                 server_socket.sendto("cb," + pickle.dumps(collectibles), addr)
 
@@ -420,12 +429,13 @@ while True:
             data = msg[3:]
             try:
                 collectible = pickle.loads(data)
-                collectibles.remove(collectible)
+                if collectible in collectibles:
+                    collectibles.remove(collectible)
             except KeyError:
                 print 'KEY_ERROR'
             except IndexError:
                 print 'INDEX_ERROR'
-            print collectibles
+            # print collectibles
             for addr in addrs:
                 server_socket.sendto("cb," + pickle.dumps(collectibles), addr)
 
@@ -494,22 +504,22 @@ while True:
                         # server_socket.sendto("B,[]", addr)
                         server_socket.sendto("T,New Round Starting,5,400", addr)
 
-            # if winner == "1":
-            #     p1_rounds += 1
-            #     if p1_rounds >= 3:
-            #         print "GAME ENDED"
-            # elif winner == "2":
-            #     p2_rounds += 1
-            #     if p2_rounds >= 3:
-            #         print "GAME ENDED"
-            # elif winner == "3":
-            #     p3_rounds += 1
-            #     if p3_rounds >= 3:
-            #         print "GAME ENDED"
-            # elif winner == "4":
-            #     p4_rounds += 1
-            #     if p4_rounds >= 3:
-            #         print "GAME ENDED"
+                        # if winner == "1":
+                        #     p1_rounds += 1
+                        #     if p1_rounds >= 3:
+                        #         print "GAME ENDED"
+                        # elif winner == "2":
+                        #     p2_rounds += 1
+                        #     if p2_rounds >= 3:
+                        #         print "GAME ENDED"
+                        # elif winner == "3":
+                        #     p3_rounds += 1
+                        #     if p3_rounds >= 3:
+                        #         print "GAME ENDED"
+                        # elif winner == "4":
+                        #     p4_rounds += 1
+                        #     if p4_rounds >= 3:
+                        #         print "GAME ENDED"
 
         elif code == "99":
             if players["1"] == addr:

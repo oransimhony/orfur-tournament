@@ -257,18 +257,20 @@ class ReceiveThread(threading.Thread):
                                 p4 = None
                                 player_positions.insert(int(p) - 1, p4)
                 elif code == "B":
-                    if data[1] != "[]":
-                        bullets_data = data[1][1:-1]
-                        bullets_data = bullets_data.split("#")
-                        bullets = []
-                        for bullet_data in bullets_data:
-                            bullet_data = bullet_data[1:-1]
-                            bullet_data = bullet_data.split("$")
-                            bullets.append(
-                                [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
-                            )
-                        bc = [bull for bull in bullets if int(bull[0]) == int(pid)]
-                        shot = len(bc)
+                    # if data[1] != "[]":
+                    #     bullets_data = data[1][1:-1]
+                    #     bullets_data = bullets_data.split("#")
+                    #     bullets = []
+                    #     for bullet_data in bullets_data:
+                    #         bullet_data = bullet_data[1:-1]
+                    #         bullet_data = bullet_data.split("$")
+                    #         bullets.append(
+                    #             [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
+                    #         )
+                    global bullets
+                    bullets = pickle.loads(data[1])
+                    bc = [bull for bull in bullets if int(bull[0]) == int(pid)]
+                    shot = len(bc)
 
                 elif code == "T":
                     global messages
@@ -353,22 +355,26 @@ def send_player_keys():
 
 
 def send_bullet(bullet_info):
-    s = ""
-    for n in bullet_info:
-        s += str(n) + ","
+    # s = ""
+    # for n in bullet_info:
+    #     s += str(n) + ","
 
-    my_socket.sendto("40" + s[:-1], s_host)
+    # my_socket.sendto("40" + s[:-1], s_host)
+    my_socket.sendto("40" + pickle.dumps(bullet_info), s_host)
 
 
 def send_mouse(angle):
+    # my_socket.sendto("6" + str(pid) + str(angle), s_host)
     my_socket.sendto("6" + str(pid) + str(angle), s_host)
 
 
 def delete_bullet(bullet_info):
-    s = ""
-    for n in bullet_info:
-        s += str(n) + ","
-    my_socket.sendto("50" + s[:-1], s_host)
+    # s = ""
+    # for n in bullet_info:
+    #     s += str(n) + ","
+    # my_socket.sendto("50" + s[:-1], s_host)
+
+    my_socket.sendto("50" + pickle.dumps(bullet_info), s_host)
 
 
 def disconnect():
@@ -565,6 +571,42 @@ while running:
             bullet1 = pygame.transform.rotate(bullet_img, 360 - projectile[1] * 57.29)
             screen.blit(bullet1, (projectile[2], projectile[3]))
 
+    for collectible in collectibles:
+        pygame.draw.circle(screen, (0, 100, 0), (collectible[0], collectible[1]), 10)
+        pygame.draw.circle(screen, (0, 255, 0), (collectible[0], collectible[1]), 8)
+        pygame.draw.line(screen, (0, 0, 0), (collectible[0] - 5, collectible[1] - 1),
+                         (collectible[0] + 5, collectible[1] - 1), 2)
+        pygame.draw.line(screen, (0, 0, 0), (collectible[0] - 1, collectible[1] - 5),
+                         (collectible[0] - 1, collectible[1] + 5), 2)
+        if collectible[2].colliderect(player_rect):
+            collectibles.remove(collectible)
+            got_collectible(collectible)
+
+    ############ TUNNEL VISION #############
+    pygame.draw.polygon(screen, (0, 0, 0),
+                        [(0, 0),
+                         (player_rect.left, 0),
+                         (player_rect.left, player_rect.top),
+                         (player_rect.left, player_rect.top + player_rect.height),
+                         (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
+                         (width, height),
+                         (0, height)
+                         ])
+    pygame.draw.polygon(screen, (0, 0, 0),
+                        [(width, 0),
+                         (player_rect.left + player_rect.width, 0),
+                         (player_rect.left + player_rect.width, player_rect.top),
+                         (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
+                         (player_rect.left, player_rect.top + player_rect.height),
+                         (0, height),
+                         (width, height)],
+                        )
+    #########################################
+    # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] - 30), (point3[0], point3[1] - 30))
+    # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] + 10), (point3[0], point3[1] + 10))
+
+
+
     for message in messages:
         text = message[0]
         text_rect = message[1]
@@ -584,13 +626,6 @@ while running:
                 exit(0)
         else:
             screen.blit(text, text_rect)
-
-    for collectible in collectibles:
-        pygame.draw.circle(screen, (0, 100, 0), (collectible[0], collectible[1]), 10)
-        pygame.draw.circle(screen, (0, 255, 0), (collectible[0], collectible[1]), 8)
-        if collectible[2].colliderect(player_rect):
-            collectibles.remove(collectible)
-            got_collectible(collectible)
 
     pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
     pygame.draw.rect(screen, (255, 0, 0),
