@@ -293,6 +293,7 @@ class ReceiveThread(threading.Thread):
                             player_positions[p - 1] = None
                             if int(p) == int(pid):
                                 dead = True
+                                dead_sound.play()
                             alive = 0
                             for pos in player_positions:
                                 if pos is not None:
@@ -383,6 +384,7 @@ def disconnect():
 
 def enemy_hit(enemy_id, hitter):
     if int(hitter) == int(pid):
+        hit_sound.play()
         my_socket.sendto("7" + str(enemy_id) + "," + str(pid), s_host)
 
 
@@ -403,6 +405,7 @@ def killed(killer, killed_p):
 
 def won(player_won):
     if int(player_won) == int(pid):
+        win_sound.play()
         my_socket.sendto("20," + "Player #" + str(player_won) + " won this round,5,400", s_host)
         my_socket.sendto("20," + "Congratulations!,5,400", s_host)
 
@@ -462,6 +465,11 @@ background_img = pygame.transform.scale(background_img, (width, height))
 youdied_img = pygame.image.load('youDied.jpg')
 youdied_img = pygame.transform.scale(youdied_img, (800, 600))
 bad_guys = []
+
+hit_sound = pygame.mixer.Sound('hit.wav')
+shoot_sound = pygame.mixer.Sound('shoot.wav')
+win_sound = pygame.mixer.Sound('win.wav')
+dead_sound = pygame.mixer.Sound('dead.wav')
 
 ammo = pygame.transform.rotate(bullet_img, 90)
 ammo = pygame.transform.scale2x(ammo)
@@ -561,6 +569,7 @@ while running:
             if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
                 try:
                     bullets.pop(index)
+                    hit_sound.play()
                     shot -= 1 if shot > 0 else 0
                 except IndexError as e:
                     print e
@@ -583,24 +592,88 @@ while running:
             got_collectible(collectible)
 
     ############ TUNNEL VISION #############
-    pygame.draw.polygon(screen, (0, 0, 0),
-                        [(0, 0),
-                         (player_rect.left, 0),
-                         (player_rect.left, player_rect.top),
-                         (player_rect.left, player_rect.top + player_rect.height),
-                         (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
-                         (width, height),
-                         (0, height)
-                         ])
-    pygame.draw.polygon(screen, (0, 0, 0),
-                        [(width, 0),
-                         (player_rect.left + player_rect.width, 0),
-                         (player_rect.left + player_rect.width, player_rect.top),
-                         (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
-                         (player_rect.left, player_rect.top + player_rect.height),
-                         (0, height),
-                         (width, height)],
-                        )
+
+    # points.append(())
+    # print math.degrees(player_pos[2])
+    # print (360 - player_pos[2] * 57.29) % 360
+    m = math.tan(-(2 * math.pi - player_pos[2]))
+    # print m
+    b = player_pos[1] - m * player_pos[0]
+    print 'y = {} * x + {}'.format(m, b)
+    if m != 0:
+        top = (0 - b) / m
+        bot = (height - b) / m
+    else:
+        top = 0  # player_rect.top
+        bot = width  # player_rect.top + player_rect.height
+    print 'top = ({}, 0), bot = ({}, {})'.format(top, bot, height)
+
+    if top != 0:
+        points = [(0, 0),
+                  (top - player_rect.width / 2, 0),
+                  # (player_rect.left, 0),
+                  (player_rect.left, player_rect.top),
+                  (player_rect.left, player_rect.top + player_rect.height),
+                  (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
+                  (player_rect.left + player_rect.width, player_rect.top),
+                  # (player_rect.left + player_rect.width, 0),
+                  (top + player_rect.width / 2, 0),
+                  (width, 0),
+                  (width, height),
+                  (bot + player_rect.width / 2, height),
+                  (bot - player_rect.width / 2, height),
+                  (0, height),
+                  ]
+        pygame.draw.polygon(screen, (0, 0, 0), points)
+    else:
+        points1 = [(0, 0),
+                  (0, player_rect.top),
+                  (width, player_rect.top),
+                  (width, 0)
+                  ]
+
+        points2 = [(0, height),
+                   (0, player_rect.top + player_rect.height),
+                   (width, player_rect.top + player_rect.height),
+                   (width, height),
+                   ]
+        pygame.draw.polygon(screen, (0, 0, 0), points1)
+        pygame.draw.polygon(screen, (0, 0, 0), points2)
+
+    x0 = 40
+    x1 = 40
+    x2 = 40
+    x3 = 40
+    top1 = (top - 20, 0)
+    top2 = (top + 20, 0)
+    bot1 = (bot - 20, height)
+    bot2 = (bot + 20, height)
+    i = 0
+    # if 0 < x0 < width and top1 not in points:
+    #     points.insert(i + 1, top1)
+    #     i += 1
+    # if 0 < x1 < width and top2 not in points:
+    #     points.insert(i + 5, top2)
+    #     i += 1
+    # if 0 < x2 < width and bot1 not in points:
+    #     points.insert(i + 7, bot1)
+    #     i += 1
+    # if 0 < x3 < width and bot2 not in points:
+    #     points.insert(i + 7, bot2)
+    #     i += 1
+
+
+    # print points
+
+    # pygame.draw.polygon(screen, (0, 0, 0),
+    #                     [(width, 0),
+    #                      (player_rect.left + player_rect.width, 0),
+    #                      (player_rect.left + player_rect.width, player_rect.top),
+    #                      (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
+    #                      (player_rect.left, player_rect.top + player_rect.height),
+    #                      (0, height),
+    #                      (width, height)],
+    #                     )
     #########################################
     # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] - 30), (point3[0], point3[1] - 30))
     # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] + 10), (point3[0], point3[1] + 10))
@@ -715,6 +788,7 @@ while running:
             elif event.key == K_d:
                 keys[3] = False
         if event.type == pygame.MOUSEBUTTONDOWN and not dead:
+            shoot_sound.play()
             bc = [bullet for bullet in bullets if int(bullet[0]) == int(pid)]
             shot = len(bc)
             position = pygame.mouse.get_pos()
