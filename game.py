@@ -8,6 +8,8 @@ import pickle
 import pygame
 from pygame.locals import *
 
+from classes import Message
+
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
     print "Address: ", sys.argv[1]
@@ -593,90 +595,90 @@ while running:
 
     ############ TUNNEL VISION #############
 
-    # points.append(())
-    # print math.degrees(player_pos[2])
-    # print (360 - player_pos[2] * 57.29) % 360
-    m = math.tan(-(2 * math.pi - player_pos[2]))
-    # print m
-    b = player_pos[1] - m * player_pos[0]
-    print 'y = {} * x + {}'.format(m, b)
-    if m != 0:
-        top = (0 - b) / m
-        bot = (height - b) / m
-    else:
-        top = 0  # player_rect.top
-        bot = width  # player_rect.top + player_rect.height
-    print 'top = ({}, 0), bot = ({}, {})'.format(top, bot, height)
-
-    if top != 0:
-        points = [(0, 0),
-                  (top - player_rect.width / 2, 0),
-                  # (player_rect.left, 0),
-                  (player_rect.left, player_rect.top),
-                  (player_rect.left, player_rect.top + player_rect.height),
-                  (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
-                  (player_rect.left + player_rect.width, player_rect.top),
-                  # (player_rect.left + player_rect.width, 0),
-                  (top + player_rect.width / 2, 0),
-                  (width, 0),
-                  (width, height),
-                  (bot + player_rect.width / 2, height),
-                  (bot - player_rect.width / 2, height),
-                  (0, height),
-                  ]
-        pygame.draw.polygon(screen, (0, 0, 0), points)
-    else:
-        points1 = [(0, 0),
-                  (0, player_rect.top),
-                  (width, player_rect.top),
-                  (width, 0)
-                  ]
-
-        points2 = [(0, height),
-                   (0, player_rect.top + player_rect.height),
-                   (width, player_rect.top + player_rect.height),
-                   (width, height),
-                   ]
-        pygame.draw.polygon(screen, (0, 0, 0), points1)
-        pygame.draw.polygon(screen, (0, 0, 0), points2)
-
-    x0 = 40
-    x1 = 40
-    x2 = 40
-    x3 = 40
-    top1 = (top - 20, 0)
-    top2 = (top + 20, 0)
-    bot1 = (bot - 20, height)
-    bot2 = (bot + 20, height)
-    i = 0
-    # if 0 < x0 < width and top1 not in points:
-    #     points.insert(i + 1, top1)
-    #     i += 1
-    # if 0 < x1 < width and top2 not in points:
-    #     points.insert(i + 5, top2)
-    #     i += 1
-    # if 0 < x2 < width and bot1 not in points:
-    #     points.insert(i + 7, bot1)
-    #     i += 1
-    # if 0 < x3 < width and bot2 not in points:
-    #     points.insert(i + 7, bot2)
-    #     i += 1
-
-
-    # print points
-
-    # pygame.draw.polygon(screen, (0, 0, 0),
-    #                     [(width, 0),
-    #                      (player_rect.left + player_rect.width, 0),
-    #                      (player_rect.left + player_rect.width, player_rect.top),
-    #                      (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
-    #                      (player_rect.left, player_rect.top + player_rect.height),
-    #                      (0, height),
-    #                      (width, height)],
-    #                     )
-    #########################################
-    # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] - 30), (point3[0], point3[1] - 30))
-    # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] + 10), (point3[0], point3[1] + 10))
+    # # points.append(())
+    # # print math.degrees(player_pos[2])
+    # # print (360 - player_pos[2] * 57.29) % 360
+    # m = math.tan(-(2 * math.pi - player_pos[2]))
+    # # print m
+    # b = player_pos[1] - m * player_pos[0]
+    # print 'y = {} * x + {}'.format(m, b)
+    # if m != 0:
+    #     top = (0 - b) / m
+    #     bot = (height - b) / m
+    # else:
+    #     top = 0  # player_rect.top
+    #     bot = width  # player_rect.top + player_rect.height
+    # print 'top = ({}, 0), bot = ({}, {})'.format(top, bot, height)
+    #
+    # if top != 0:
+    #     points = [(0, 0),
+    #               (top - player_rect.width / 2, 0),
+    #               # (player_rect.left, 0),
+    #               (player_rect.left, player_rect.top),
+    #               (player_rect.left, player_rect.top + player_rect.height),
+    #               (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
+    #               (player_rect.left + player_rect.width, player_rect.top),
+    #               # (player_rect.left + player_rect.width, 0),
+    #               (top + player_rect.width / 2, 0),
+    #               (width, 0),
+    #               (width, height),
+    #               (bot + player_rect.width / 2, height),
+    #               (bot - player_rect.width / 2, height),
+    #               (0, height),
+    #               ]
+    #     pygame.draw.polygon(screen, (0, 0, 0), points)
+    # else:
+    #     points1 = [(0, 0),
+    #               (0, player_rect.top),
+    #               (width, player_rect.top),
+    #               (width, 0)
+    #               ]
+    #
+    #     points2 = [(0, height),
+    #                (0, player_rect.top + player_rect.height),
+    #                (width, player_rect.top + player_rect.height),
+    #                (width, height),
+    #                ]
+    #     pygame.draw.polygon(screen, (0, 0, 0), points1)
+    #     pygame.draw.polygon(screen, (0, 0, 0), points2)
+    #
+    # x0 = 40
+    # x1 = 40
+    # x2 = 40
+    # x3 = 40
+    # top1 = (top - 20, 0)
+    # top2 = (top + 20, 0)
+    # bot1 = (bot - 20, height)
+    # bot2 = (bot + 20, height)
+    # i = 0
+    # # if 0 < x0 < width and top1 not in points:
+    # #     points.insert(i + 1, top1)
+    # #     i += 1
+    # # if 0 < x1 < width and top2 not in points:
+    # #     points.insert(i + 5, top2)
+    # #     i += 1
+    # # if 0 < x2 < width and bot1 not in points:
+    # #     points.insert(i + 7, bot1)
+    # #     i += 1
+    # # if 0 < x3 < width and bot2 not in points:
+    # #     points.insert(i + 7, bot2)
+    # #     i += 1
+    #
+    #
+    # # print points
+    #
+    # # pygame.draw.polygon(screen, (0, 0, 0),
+    # #                     [(width, 0),
+    # #                      (player_rect.left + player_rect.width, 0),
+    # #                      (player_rect.left + player_rect.width, player_rect.top),
+    # #                      (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
+    # #                      (player_rect.left, player_rect.top + player_rect.height),
+    # #                      (0, height),
+    # #                      (width, height)],
+    # #                     )
+    # #########################################
+    # # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] - 30), (point3[0], point3[1] - 30))
+    # # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] + 10), (point3[0], point3[1] + 10))
 
 
 
