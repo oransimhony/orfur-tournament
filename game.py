@@ -1,4 +1,4 @@
-# Version 1.0.1 by Oran Simhony
+# Version 1.0.2 by Oran Simhony
 
 import math
 import socket
