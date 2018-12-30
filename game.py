@@ -8,7 +8,7 @@ import pickle
 import pygame
 from pygame.locals import *
 
-from classes import Message
+from classes import *
 
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
@@ -26,6 +26,8 @@ except:
 # debug = raw_input("Debug Mode? (Y/N)")
 # debug = True if "y" in debug.lower() else False
 debug = False
+
+mute = True
 
 pid = 0
 dead = False
@@ -295,7 +297,8 @@ class ReceiveThread(threading.Thread):
                             player_positions[p - 1] = None
                             if int(p) == int(pid):
                                 dead = True
-                                dead_sound.play()
+                                if not mute:
+                                    dead_sound.play()
                             alive = 0
                             for pos in player_positions:
                                 if pos is not None:
@@ -386,7 +389,8 @@ def disconnect():
 
 def enemy_hit(enemy_id, hitter):
     if int(hitter) == int(pid):
-        hit_sound.play()
+        if not mute:
+            hit_sound.play()
         my_socket.sendto("7" + str(enemy_id) + "," + str(pid), s_host)
 
 
@@ -407,7 +411,8 @@ def killed(killer, killed_p):
 
 def won(player_won):
     if int(player_won) == int(pid):
-        win_sound.play()
+        if not mute:
+            win_sound.play()
         my_socket.sendto("20," + "Player #" + str(player_won) + " won this round,5,400", s_host)
         my_socket.sendto("20," + "Congratulations!,5,400", s_host)
 
@@ -571,7 +576,8 @@ while running:
             if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
                 try:
                     bullets.pop(index)
-                    hit_sound.play()
+                    if not mute:
+                        hit_sound.play()
                     shot -= 1 if shot > 0 else 0
                 except IndexError as e:
                     print e
@@ -790,7 +796,8 @@ while running:
             elif event.key == K_d:
                 keys[3] = False
         if event.type == pygame.MOUSEBUTTONDOWN and not dead:
-            shoot_sound.play()
+            if not mute:
+                shoot_sound.play()
             bc = [bullet for bullet in bullets if int(bullet[0]) == int(pid)]
             shot = len(bc)
             position = pygame.mouse.get_pos()
