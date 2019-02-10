@@ -98,7 +98,8 @@ while True:
         print message
         msg, addr = "", ()
     if msg != "":
-        code = msg[:2]
+        msg = pickle.loads(msg)
+        code = msg.code
         # if debug:
         # print "start - ", msg, code, addr
         if code == "00":
@@ -192,7 +193,7 @@ while True:
 
         elif code == "11":
             # print 'Getting pos#1'
-            data = msg[2:]
+            data = msg.data
             if data is not None and data != "" and p1 is not None:
                 # print data, addr
                 data = data.split(',')
@@ -205,7 +206,7 @@ while True:
                 p1 = None
         elif code == "12":
             print 'Getting pos#2'
-            data = msg[2:]
+            data = msg.data
             print p2
             print data, addr
             if data is not None and data != "" and p2 is not None:
@@ -219,7 +220,7 @@ while True:
                 p2 = None
         elif code == "13":
             # print 'Getting pos#3'
-            data = msg[2:]
+            data = msg.data
             if data is not None and data != "" and p3 is not None:
                 # print data, addr
                 data = data.split(',')
@@ -232,7 +233,7 @@ while True:
                 p3 = None
         elif code == "14":
             # print 'Getting pos#4'
-            data = msg[2:]
+            data = msg.data
             if data is not None and data != "" and p4 is not None:
                 # print data, addr
                 data = data.split(',')
@@ -245,7 +246,7 @@ while True:
                 p4 = None
 
         elif code == "20":
-            data = msg[2:]
+            data = msg.data
             data = data.split(",")
             text = data[1]
             x = data[2]
@@ -255,7 +256,7 @@ while True:
 
         elif code == "21":
             # print 'Getting killed'
-            data = msg[2:]
+            data = msg.data
             data = data.split(',')
             killer = data[1]
             for addr in addrs:
@@ -263,7 +264,7 @@ while True:
 
         elif code == "22":
             # print 'Getting killed'
-            data = msg[2:]
+            data = msg.data
             data = data.split(',')
             killer = data[1]
             for addr in addrs:
@@ -271,7 +272,7 @@ while True:
 
         elif code == "23":
             # print 'Getting killed'
-            data = msg[2:]
+            data = msg.data
             data = data.split(',')
             killer = data[1]
             for addr in addrs:
@@ -279,7 +280,7 @@ while True:
 
         elif code == "24":
             # print 'Getting killed'
-            data = msg[2:]
+            data = msg.data
             data = data.split(',')
             killer = data[1]
             for addr in addrs:
@@ -300,21 +301,7 @@ while True:
 
         elif code == "40":
             # print 'Getting bullet'
-            data = msg[2:]
-            # print data, addr
-            # data = data.split(',')
-            # if [str(data[0]), float(data[1]), int(data[2]), int(data[3])] not in bullets:
-            #     bullets.append([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
-            #     s = "["
-            #     for bullet in bullets:
-            #         s += "["
-            #         for n in bullet:
-            #             s += str(n) + "$"
-            #         s = s[:-1]
-            #         s += "]#"
-            #     s = s[:-1]
-            #     s += "]"
-
+            data = msg.data
             bullet = pickle.loads(data)
             if bullet not in bullets:
                 bullets.append(bullet)
@@ -322,65 +309,43 @@ while True:
                     server_socket.sendto("B," + pickle.dumps(bullets), addr)
 
         elif code == "50":
-            # length = len(bullets)
-            # # print 'Deleting bullet'
-            # data = msg[2:]
-            # # print data, addr
-            # data = data.split(',')
-            # # print data, bullets
-            # try:
-            #     bullets.remove([str(data[0]), float(data[1]), int(data[2]), int(data[3])])
-            # except ValueError as e:
-            #     print e.message
-            #     # print "DELETE FAILED"
-            # s = "["
-            # for bullet in bullets:
-            #     s += "["
-            #     for n in bullet:
-            #         s += str(n) + "$"
-            #     s = s[:-1]
-            #     s += "]#"
-            # s = s[:-1] if len(s) > 1 else s
-            # s += "]"
-            data = msg[2:]
+            data = msg.data
             bullet = pickle.loads(data)
             if bullet in bullets:
                 bullets.remove(bullet)
             for addr in addrs:
-                # print len("B," + s)
-                # print "B," + s
                 server_socket.sendto("B," + pickle.dumps(bullets), addr)
 
         elif code == "61":
-            data = msg[2:]
+            data = msg.data
             if p1 is not None:
                 p1[2] = float(data)
                 for addr in addrs:
                     server_socket.sendto("zz,1," + str(p1[0]) + "," + str(p1[1]) + "," + str(p1[2]), addr)
 
         elif code == "62":
-            data = msg[2:]
+            data = msg.data
             if p2 is not None:
                 p2[2] = float(data)
                 for addr in addrs:
                     server_socket.sendto("zz,2," + str(p2[0]) + "," + str(p2[1]) + "," + str(p2[2]), addr)
 
         elif code == "63":
-            data = msg[2:]
+            data = msg.data
             if p3 is not None:
                 p3[2] = float(data)
                 for addr in addrs:
                     server_socket.sendto("zz,3," + str(p3[0]) + "," + str(p3[1]) + "," + str(p3[2]), addr)
 
         elif code == "64":
-            data = msg[2:]
+            data = msg.data
             if p4 is not None:
                 p4[2] = float(data)
                 for addr in addrs:
                     server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
 
         elif code == "71":
-            data = msg[2:]
+            data = msg.data
             data = data.split(",")
             hitter = data[1]
             p1_health -= 1
@@ -388,7 +353,7 @@ while True:
                 server_socket.sendto("hp,1," + str(p1_health) + "," + hitter, addr)
 
         elif code == "72":
-            data = msg[2:]
+            data = msg.data
             data = data.split(",")
             hitter = data[1]
             p2_health -= 1
@@ -396,7 +361,7 @@ while True:
                 server_socket.sendto("hp,2," + str(p2_health) + "," + hitter, addr)
 
         elif code == "73":
-            data = msg[2:]
+            data = msg.data
             data = data.split(",")
             hitter = data[1]
             p3_health -= 1
@@ -404,7 +369,7 @@ while True:
                 server_socket.sendto("hp,3," + str(p3_health) + "," + hitter, addr)
 
         elif code == "74":
-            data = msg[2:]
+            data = msg.data
             data = data.split(",")
             hitter = data[1]
             p4_health -= 1
@@ -414,19 +379,19 @@ while True:
         elif code == "80":
             data, address = server_socket.recvfrom(2048)
             try:
-                collectible = pickle.loads(data)
+                message = pickle.loads(data)
+                collectible = pickle.loads(message.data)
                 if collectible not in collectibles:
                     collectibles.append(collectible)
             except KeyError:
                 print 'KEY_ERROR'
             except IndexError:
                 print 'INDEX_ERROR'
-            # print collectibles
             for addr in addrs:
                 server_socket.sendto("cb," + pickle.dumps(collectibles), addr)
 
         elif code == "85":
-            data = msg[3:]
+            data = msg.data
             try:
                 collectible = pickle.loads(data)
                 if collectible in collectibles:
@@ -460,7 +425,7 @@ while True:
                 server_socket.sendto("hp,4," + str(p4_health) + ",C", addr)
 
         elif code == "90":
-            data = msg[2:]
+            data = msg.data
             data = data.split(",")
             winner = int(data[1])
             if 0 < winner < 5:
@@ -497,29 +462,7 @@ while True:
                             server_socket.sendto("zz,4," + str(p4[0]) + "," + str(p4[1]) + "," + str(p4[2]), addr)
                         else:
                             server_socket.sendto("zz,4,None", addr)
-                        # server_socket.sendto("hp,1," + str(p1_health) + ",1", addr)
-                        # server_socket.sendto("hp,2," + str(p2_health) + ",1", addr)
-                        # server_socket.sendto("hp,3," + str(p3_health) + ",1", addr)
-                        # server_socket.sendto("hp,4," + str(p4_health) + ",1", addr)
-                        # server_socket.sendto("B,[]", addr)
                         server_socket.sendto("T,New Round Starting,5,400", addr)
-
-                        # if winner == "1":
-                        #     p1_rounds += 1
-                        #     if p1_rounds >= 3:
-                        #         print "GAME ENDED"
-                        # elif winner == "2":
-                        #     p2_rounds += 1
-                        #     if p2_rounds >= 3:
-                        #         print "GAME ENDED"
-                        # elif winner == "3":
-                        #     p3_rounds += 1
-                        #     if p3_rounds >= 3:
-                        #         print "GAME ENDED"
-                        # elif winner == "4":
-                        #     p4_rounds += 1
-                        #     if p4_rounds >= 3:
-                        #         print "GAME ENDED"
 
         elif code == "99":
             if players["1"] == addr:

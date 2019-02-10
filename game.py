@@ -263,16 +263,6 @@ class ReceiveThread(threading.Thread):
                                 p4 = None
                                 player_positions.insert(int(p) - 1, p4)
                 elif code == "B":
-                    # if data[1] != "[]":
-                    #     bullets_data = data[1][1:-1]
-                    #     bullets_data = bullets_data.split("#")
-                    #     bullets = []
-                    #     for bullet_data in bullets_data:
-                    #         bullet_data = bullet_data[1:-1]
-                    #         bullet_data = bullet_data.split("$")
-                    #         bullets.append(
-                    #             [str(bullet_data[0]), float(bullet_data[1]), int(bullet_data[2]), int(bullet_data[3])]
-                    #         )
                     global bullets
                     bullets = pickle.loads(data[1])
                     bc = [bull for bull in bullets if int(bull[0]) == int(pid)]
@@ -327,7 +317,8 @@ def initial_connect():
     global pid
     global lThread
 
-    my_socket.sendto("00", s_host)
+    my_socket.sendto(pickle.dumps(Message("00", None)), s_host)
+    # my_socket.sendto("00", s_host)
     (data, addr) = my_socket.recvfrom(1024)
     if debug:
         print "The server sent: " + data
@@ -352,7 +343,8 @@ def send_player_pos():
         if player_position is player_pos:
             for co in player_position:
                 s += str(co) + ","
-    my_socket.sendto("1" + str(pid) + s[:-1], s_host)
+    my_socket.sendto(pickle.dumps(Message("1" + str(pid), s[:-1])), s_host)
+    # my_socket.sendto("1" + str(pid) + s[:-1], s_host)
 
 
 def send_player_keys():
@@ -363,60 +355,51 @@ def send_player_keys():
 
 
 def send_bullet(bullet_info):
-    # s = ""
-    # for n in bullet_info:
-    #     s += str(n) + ","
-
-    # my_socket.sendto("40" + s[:-1], s_host)
-    my_socket.sendto("40" + pickle.dumps(bullet_info), s_host)
+    my_socket.sendto(pickle.dumps(Message("40", pickle.dumps(bullet_info))), s_host)
 
 
 def send_mouse(angle):
-    # my_socket.sendto("6" + str(pid) + str(angle), s_host)
-    my_socket.sendto("6" + str(pid) + str(angle), s_host)
+    my_socket.sendto(pickle.dumps(Message("6" + str(pid), str(angle))), s_host)
 
 
 def delete_bullet(bullet_info):
-    # s = ""
-    # for n in bullet_info:
-    #     s += str(n) + ","
-    # my_socket.sendto("50" + s[:-1], s_host)
-
-    my_socket.sendto("50" + pickle.dumps(bullet_info), s_host)
-
+    my_socket.sendto(pickle.dumps(Message("50", pickle.dumps(bullet_info))), s_host)
+    
 
 def disconnect():
-    my_socket.sendto("99", s_host)
+    my_socket.sendto(pickle.dumps(Message("99", None)), s_host)
 
 
 def enemy_hit(enemy_id, hitter):
     if int(hitter) == int(pid):
         if not mute:
             hit_sound.play()
-        my_socket.sendto("7" + str(enemy_id) + "," + str(pid), s_host)
+        my_socket.sendto(pickle.dumps(Message("7" + str(enemy_id), str(pid))), s_host)
 
 
 def got_collectible(acquired_collectible):
-    my_socket.sendto("8" + str(pid), s_host)
-    my_socket.sendto("85," + pickle.dumps(acquired_collectible), s_host)
+    my_socket.sendto(pickle.dumps(Message("8" + str(pid), None)), s_host)
+    my_socket.sendto(pickle.dumps(Message("85", pickle.dumps(acquired_collectible))), s_host)
+
 
 
 def send_collectible(created_collectible):
-    my_socket.sendto("80", s_host)
-    my_socket.sendto(pickle.dumps(created_collectible), s_host)
+    my_socket.sendto(pickle.dumps(Message("80", None)), s_host)
+    my_socket.sendto(pickle.dumps(Message(None, pickle.dumps(created_collectible))), s_host)
+
 
 
 def killed(killer, killed_p):
     if int(killer) == int(pid):
-        my_socket.sendto("2" + str(killed_p) + "," + killer, s_host)
+        my_socket.sendto(pickle.dumps(Message("2" + str(killed_p), killer)), s_host)
 
 
 def won(player_won):
     if int(player_won) == int(pid):
         if not mute:
             win_sound.play()
-        my_socket.sendto("20," + "Player #" + str(player_won) + " won this round,5,400", s_host)
-        my_socket.sendto("20," + "Congratulations!,5,400", s_host)
+        my_socket.sendto(pickle.dumps(Message("20", "Player #" + str(player_won) + " won this round,5,400")), s_host)
+        my_socket.sendto(pickle.dumps(Message("20", "Congratulations!,5,400")), s_host)
 
 
 def new_round():
@@ -425,7 +408,7 @@ def new_round():
     if int(player_won_id) == int(pid):
         if debug:
             print "NEW ROUND SENTTTTTTTTTTTTTT"
-        my_socket.sendto("90," + str(player_won_id), s_host)
+        my_socket.sendto(pickle.dumps("90", str(player_won_id)), s_host)
 
 
 def make_text(text_message, x, y, text_color):
