@@ -1,5 +1,5 @@
-import socket
 import pickle
+import socket
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -248,9 +248,10 @@ while True:
         elif code == "20":
             data = msg.data
             data = data.split(",")
-            text = data[1]
-            x = data[2]
-            y = data[3]
+            print data
+            text = data[0]
+            x = data[1]
+            y = data[2]
             for addr in addrs:
                 server_socket.sendto("T," + text + "," + x + "," + y, addr)
 
@@ -258,7 +259,7 @@ while True:
             # print 'Getting killed'
             data = msg.data
             data = data.split(',')
-            killer = data[1]
+            killer = data[0]
             for addr in addrs:
                 server_socket.sendto("T,Player #" + killer + " killed Player #1,5,400", addr)
 
@@ -266,7 +267,7 @@ while True:
             # print 'Getting killed'
             data = msg.data
             data = data.split(',')
-            killer = data[1]
+            killer = data[0]
             for addr in addrs:
                 server_socket.sendto("T,Player #" + killer + " killed Player #2,5,400", addr)
 
@@ -274,7 +275,7 @@ while True:
             # print 'Getting killed'
             data = msg.data
             data = data.split(',')
-            killer = data[1]
+            killer = data[0]
             for addr in addrs:
                 server_socket.sendto("T,Player #" + killer + " killed Player #3,5,400", addr)
 
@@ -282,7 +283,7 @@ while True:
             # print 'Getting killed'
             data = msg.data
             data = data.split(',')
-            killer = data[1]
+            killer = data[0]
             for addr in addrs:
                 server_socket.sendto("T,Player #" + killer + " killed Player #4,5,400", addr)
 
@@ -347,7 +348,7 @@ while True:
         elif code == "71":
             data = msg.data
             data = data.split(",")
-            hitter = data[1]
+            hitter = data[0]
             p1_health -= 1
             for addr in addrs:
                 server_socket.sendto("hp,1," + str(p1_health) + "," + hitter, addr)
@@ -355,7 +356,7 @@ while True:
         elif code == "72":
             data = msg.data
             data = data.split(",")
-            hitter = data[1]
+            hitter = data[0]
             p2_health -= 1
             for addr in addrs:
                 server_socket.sendto("hp,2," + str(p2_health) + "," + hitter, addr)
@@ -363,7 +364,7 @@ while True:
         elif code == "73":
             data = msg.data
             data = data.split(",")
-            hitter = data[1]
+            hitter = data[0]
             p3_health -= 1
             for addr in addrs:
                 server_socket.sendto("hp,3," + str(p3_health) + "," + hitter, addr)
@@ -371,7 +372,7 @@ while True:
         elif code == "74":
             data = msg.data
             data = data.split(",")
-            hitter = data[1]
+            hitter = data[0]
             p4_health -= 1
             for addr in addrs:
                 server_socket.sendto("hp,4," + str(p4_health) + "," + hitter, addr)
@@ -427,7 +428,7 @@ while True:
         elif code == "90":
             data = msg.data
             data = data.split(",")
-            winner = int(data[1])
+            winner = int(data[0])
             if 0 < winner < 5:
                 rounds[winner - 1] += 1
                 if int(rounds[winner - 1]) >= 3:
@@ -487,4 +488,4 @@ while True:
                     server_socket.sendto("T,Player #4 Disconnected,5,400", address)
 
         else:
-            server_socket.sendto("Wrong code. " + code, addr)
+            server_socket.sendto("Wrong code. " + str(code), addr)

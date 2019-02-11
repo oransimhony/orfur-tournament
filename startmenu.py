@@ -1,6 +1,7 @@
+import subprocess
+
 import pygame
 from pygame.locals import *
-import subprocess
 
 
 class SceneManager:
@@ -12,7 +13,7 @@ class SceneManager:
                                    [("Start", 200, 400), ("Help", 400, 400), ("Quit", 600, 400)])
 
     def load_scene(self, scene_to_load):
-        if scene_to_load.name == "START":
+        if scene_to_load is not None and scene_to_load.name == "START":
             srvs = get_servers()
             scene_to_load.servers = srvs
         self.current_scene = scene_to_load
