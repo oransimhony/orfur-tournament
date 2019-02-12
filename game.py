@@ -42,10 +42,6 @@ p4 = Player(4)
 
 my_player = None
 
-# p1 = None  # [100, 100, 0.0]
-# p2 = None  # [700, 100, 3.0]
-# p3 = None  # [100, 500, 0.0]
-# p4 = None  # [700, 500, 3.0]
 player_positions = [p1, p2, p3, p4]
 
 p1_health = 30
@@ -95,55 +91,18 @@ def restart_values():
     p3 = Player(3)
     p4 = Player(4)
 
-    # p1 = None
-    # p2 = None
-    # p3 = None
-    # p4 = None
-
     player_positions = [p1, p2, p3, p4]
     player_pos = None
     my_player = None
 
     if pid == "1":
         my_player = p1
-        # if p1 is not None:
-        #     player_pos = [p1[0], p1[1], p1[2]]
-        #     player_positions.remove(p1)
-        #     player_positions.append(player_pos)
-        # else:
-        #     player_pos = None
-        #     player_positions.remove(p1)
-        #     player_positions.append(player_pos)
     elif pid == "2":
         my_player = p2
-        # if p2 is not None:
-        #     player_pos = [p2[0], p2[1], p2[2]]
-        #     player_positions.remove(p2)
-        #     player_positions.append(player_pos)
-        # else:
-        #     player_pos = None
-        #     player_positions.remove(p2)
-        #     player_positions.append(player_pos)
     elif pid == "3":
         my_player = p3
-        # if p3 is not None:
-        #     player_pos = [p3[0], p3[1], p3[2]]
-        #     player_positions.remove(p3)
-        #     player_positions.append(player_pos)
-        # else:
-        #     player_pos = None
-        #     player_positions.remove(p3)
-        #     player_positions.append(player_pos)
     elif pid == "4":
         my_player = p4
-        # if p4 is not None:
-        #     player_pos = [p4[0], p4[1], p4[2]]
-        #     player_positions.remove(p4)
-        #     player_positions.append(player_pos)
-        # else:
-        #     player_pos = None
-        #     player_positions.remove(p4)
-        #     player_positions.append(player_pos)
 
     p1_health = 30
     p2_health = 30
@@ -209,44 +168,12 @@ class ReceiveThread(threading.Thread):
                                 my_player.set_position((x, y, angle))
                             if p == "1":
                                 p1.set_position((x, y, angle))
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p1)
-                                #     p1 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p1)
                             elif p == "2":
                                 p2.set_position((x, y, angle))
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p2)
-                                #     p2 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p2)
                             elif p == "3":
                                 p3.set_position((x, y, angle))
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p3)
-                                #     p3 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p3)
                             elif p == "4":
                                 p4.set_position((x, y, angle))
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p4)
-                                #     p4 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p4)
                         except ValueError as e:
                             print e.message
                     else:
@@ -255,84 +182,14 @@ class ReceiveThread(threading.Thread):
                                 my_player.died()
                             if p == "1":
                                 p1.died()
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p1)
-                                #     p1 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p1)
                             elif p == "2":
                                 p2.died()
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p2)
-                                #     p2 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p2)
                             elif p == "3":
                                 p3.died()
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p3)
-                                #     p3 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p3)
                             elif p == "4":
                                 p4.died()
-                                # if pid == p:
-                                #     player_positions.remove(player_pos)
-                                #     player_pos = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, player_pos)
-                                # else:
-                                #     player_positions.remove(p4)
-                                #     p4 = [int(x), int(y), float(angle)]
-                                #     player_positions.insert(int(p) - 1, p4)
                         except ValueError as e:
                             print e.message
-                        # if debug:
-                        #     print player_pos, player_positions
-                        # if p == "1":
-                        #     if pid == p:
-                        #         player_positions.remove(player_pos)
-                        #         player_pos = None
-                        #         player_positions.insert(int(p) - 1, player_pos)
-                        #     else:
-                        #         player_positions.remove(p1)
-                        #         p1 = None
-                        #         player_positions.insert(int(p) - 1, p1)
-                        # elif p == "2":
-                        #     if pid == p:
-                        #         player_positions.remove(player_pos)
-                        #         player_pos = None
-                        #         player_positions.insert(int(p) - 1, player_pos)
-                        #     else:
-                        #         player_positions.remove(p2)
-                        #         p2 = None
-                        #         player_positions.insert(int(p) - 1, p2)
-                        # elif p == "3":
-                        #     if pid == p:
-                        #         player_positions.remove(player_pos)
-                        #         player_pos = None
-                        #         player_positions.insert(int(p) - 1, player_pos)
-                        #     else:
-                        #         player_positions.remove(p3)
-                        #         p3 = None
-                        #         player_positions.insert(int(p) - 1, p3)
-                        # elif p == "4":
-                        #     if pid == p:
-                        #         player_positions.remove(player_pos)
-                        #         player_pos = None
-                        #         player_positions.insert(int(p) - 1, player_pos)
-                        #     else:
-                        #         player_positions.remove(p4)
-                        #         p4 = None
-                        #         player_positions.insert(int(p) - 1, p4)
                 elif code == "B":
                     global bullets
                     bullets = pickle.loads(data[1])
@@ -387,19 +244,6 @@ class ReceiveThread(threading.Thread):
                         if p4.is_alive():
                             alive += 1
                             player_won_id = 4
-                        # players_health[p - 1] = hp
-                        # if int(p) == int(pid):
-                        #     health = hp
-                        # if players_health[p - 1] <= 0:
-                        #     player_positions[p - 1] = None
-                        #     if int(p) == int(pid):
-                        #         dead = True
-                        #         if not mute:
-                        #             dead_sound.play()
-                        #     alive = 0
-                        #     for pos in player_positions:
-                        #         if pos is not None:
-                        #             alive += 1
                         print alive, player_won_id
                         if alive == 1:
                             won(player_won_id)
@@ -418,7 +262,6 @@ def initial_connect():
     global my_player
 
     my_socket.sendto(pickle.dumps(Message("00", None)), s_host)
-    # my_socket.sendto("00", s_host)
     (data, addr) = my_socket.recvfrom(1024)
     if debug:
         print "The server sent: " + data
@@ -446,14 +289,7 @@ def initial_connect():
 
 
 def send_player_pos():
-    # s = ""
-    # for player_position in player_positions:
-    #     if player_position is player_pos:
-    #         for co in player_position:
-    #             s += str(co) + ","
     my_socket.sendto(pickle.dumps(Message("1" + str(pid), my_player.get_string_position())), s_host)
-    # my_socket.sendto(pickle.dumps(Message("1" + str(pid), s[:-1])), s_host)
-    # my_socket.sendto("1" + str(pid) + s[:-1], s_host)
 
 
 def send_player_keys():
@@ -590,28 +426,12 @@ offset.y = y_offset
 
 if pid == "1":
     my_player = p1
-    # if p1 is not None:
-    #     player_pos = [p1[0], p1[1], p1[2]]
-    #     player_positions.remove(p1)
-    #     player_positions.insert(int(pid) - 1, player_pos)
 elif pid == "2":
     my_player = p2
-    # if p2 is not None:
-    #     player_pos = [p2[0], p2[1], p2[2]]
-    #     player_positions.remove(p2)
-    #     player_positions.insert(int(pid) - 1, player_pos)
 elif pid == "3":
     my_player = p3
-    # if p3 is not None:
-    #     player_pos = [p3[0], p3[1], p3[2]]
-    #     player_positions.remove(p3)
-    #     player_positions.insert(int(pid) - 1, player_pos)
 elif pid == "4":
     my_player = p4
-    # if p4 is not None:
-    #     player_pos = [p4[0], p4[1], p4[2]]
-    #     player_positions.remove(p4)
-    #     player_positions.insert(int(pid) - 1, player_pos)
 
 new = False
 
@@ -854,223 +674,6 @@ while running:
         draw_aimline()
     check_for_collisions()
 
-    # for playerp in player_positions:
-    #     if playerp is player_pos:
-    #         if playerp is not None:
-    #             position = pygame.mouse.get_pos()
-    #             playerp[2] = math.atan2(position[1] - point3[1], position[0] - point3[0])
-    #             playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
-    #             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
-    #             screen.blit(playerrot, playerpos1)
-    #             players_rects.append([screen.blit(playerrot, playerpos1), p_id])
-    #             player_rect = screen.blit(playerrot, playerpos1)
-    #             if position != mouse:
-    #                 send_mouse(playerp[2])
-    #                 mouse = position
-    #                 point1 = (mouse[0], mouse[1])
-    #                 point3 = (player_pos[0] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).x,
-    #                           player_pos[1] + offset.rotate(-(360 - playerp[2] * 57.29) % 360).y)
-    #                 point2 = (point1[0], point3[1])
-    #         else:
-    #             players_rects.append([None, p_id])
-    #         p_id += 1
-    #     else:
-    #         if playerp is not None:
-    #             playerrot = pygame.transform.rotate(player_img, 360 - playerp[2] * 57.29)
-    #             playerpos1 = (playerp[0] - playerrot.get_rect().width / 2, playerp[1] - playerrot.get_rect().height / 2)
-    #             screen.blit(playerrot, playerpos1)
-    #             players_rects.append([screen.blit(playerrot, playerpos1), p_id])
-    #         else:
-    #             players_rects.append([None, p_id])
-    #         p_id += 1
-
-    # for bullet in bullets:
-    #     if bullet[0] == pid:
-    #         delete_bullet(bullet)
-    #         index = 0
-    #         velx = math.cos(bullet[1]) * bullet_speed
-    #         vely = math.sin(bullet[1]) * bullet_speed
-    #         bullet[2] += int(velx)
-    #         bullet[3] += int(vely)
-    #         if bullet[2] < -64 or bullet[2] > width or bullet[3] < -64 or bullet[3] > height:
-    #             try:
-    #                 bullets.pop(index)
-    #                 if not mute:
-    #                     hit_sound.play()
-    #                 shot -= 1 if shot > 0 else 0
-    #             except IndexError as e:
-    #                 print e
-    #         else:
-    #             send_bullet(bullet)
-    #         index += 1
-    # for projectile in bullets:
-    #     bullet1 = pygame.transform.rotate(bullet_img, 360 - projectile[1] * 57.29)
-    #     screen.blit(bullet1, (projectile[2], projectile[3]))
-
-    # for collectible in collectibles:
-    #     pygame.draw.circle(screen, (0, 100, 0), (collectible[0], collectible[1]), 10)
-    #     pygame.draw.circle(screen, (0, 255, 0), (collectible[0], collectible[1]), 8)
-    #     pygame.draw.line(screen, (0, 0, 0), (collectible[0] - 5, collectible[1] - 1),
-    #                      (collectible[0] + 5, collectible[1] - 1), 2)
-    #     pygame.draw.line(screen, (0, 0, 0), (collectible[0] - 1, collectible[1] - 5),
-    #                      (collectible[0] - 1, collectible[1] + 5), 2)
-    #     if collectible[2].colliderect(player_rect):
-    #         collectibles.remove(collectible)
-    #         got_collectible(collectible)
-
-    ############ TUNNEL VISION #############
-
-    # # points.append(())
-    # # print math.degrees(player_pos[2])
-    # # print (360 - player_pos[2] * 57.29) % 360
-    # m = math.tan(-(2 * math.pi - player_pos[2]))
-    # # print m
-    # b = player_pos[1] - m * player_pos[0]
-    # print 'y = {} * x + {}'.format(m, b)
-    # if m != 0:
-    #     top = (0 - b) / m
-    #     bot = (height - b) / m
-    # else:
-    #     top = 0  # player_rect.top
-    #     bot = width  # player_rect.top + player_rect.height
-    # print 'top = ({}, 0), bot = ({}, {})'.format(top, bot, height)
-    #
-    # if top != 0:
-    #     points = [(0, 0),
-    #               (top - player_rect.width / 2, 0),
-    #               # (player_rect.left, 0),
-    #               (player_rect.left, player_rect.top),
-    #               (player_rect.left, player_rect.top + player_rect.height),
-    #               (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
-    #               (player_rect.left + player_rect.width, player_rect.top),
-    #               # (player_rect.left + player_rect.width, 0),
-    #               (top + player_rect.width / 2, 0),
-    #               (width, 0),
-    #               (width, height),
-    #               (bot + player_rect.width / 2, height),
-    #               (bot - player_rect.width / 2, height),
-    #               (0, height),
-    #               ]
-    #     pygame.draw.polygon(screen, (0, 0, 0), points)
-    # else:
-    #     points1 = [(0, 0),
-    #               (0, player_rect.top),
-    #               (width, player_rect.top),
-    #               (width, 0)
-    #               ]
-    #
-    #     points2 = [(0, height),
-    #                (0, player_rect.top + player_rect.height),
-    #                (width, player_rect.top + player_rect.height),
-    #                (width, height),
-    #                ]
-    #     pygame.draw.polygon(screen, (0, 0, 0), points1)
-    #     pygame.draw.polygon(screen, (0, 0, 0), points2)
-    #
-    # x0 = 40
-    # x1 = 40
-    # x2 = 40
-    # x3 = 40
-    # top1 = (top - 20, 0)
-    # top2 = (top + 20, 0)
-    # bot1 = (bot - 20, height)
-    # bot2 = (bot + 20, height)
-    # i = 0
-    # # if 0 < x0 < width and top1 not in points:
-    # #     points.insert(i + 1, top1)
-    # #     i += 1
-    # # if 0 < x1 < width and top2 not in points:
-    # #     points.insert(i + 5, top2)
-    # #     i += 1
-    # # if 0 < x2 < width and bot1 not in points:
-    # #     points.insert(i + 7, bot1)
-    # #     i += 1
-    # # if 0 < x3 < width and bot2 not in points:
-    # #     points.insert(i + 7, bot2)
-    # #     i += 1
-    #
-    #
-    # # print points
-    #
-    # # pygame.draw.polygon(screen, (0, 0, 0),
-    # #                     [(width, 0),
-    # #                      (player_rect.left + player_rect.width, 0),
-    # #                      (player_rect.left + player_rect.width, player_rect.top),
-    # #                      (player_rect.left + player_rect.width, player_rect.top + player_rect.height),
-    # #                      (player_rect.left, player_rect.top + player_rect.height),
-    # #                      (0, height),
-    # #                      (width, height)],
-    # #                     )
-    # #########################################
-    # # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] - 30), (point3[0], point3[1] - 30))
-    # # pygame.draw.line(screen, (0, 255, 0), (point1[0], point1[1] + 10), (point3[0], point3[1] + 10))
-
-    # for message in messages:
-    #     text = message[0]
-    #     text_rect = message[1]
-    #     message[2] -= 50
-    #     if message[2] <= 0:
-    #         if message in messages:
-    #             messages.remove(message)
-    #         if message[3] == 1 and not new:
-    #             new = True
-    #             new_round()
-    #         if message[3] == 2:
-    #             print "QUITTING"
-    #             disconnect()
-    #             print "DISCONNECTED"
-    #             my_socket.close()
-    #             pygame.quit()
-    #             print "SOCKET AND PYGAME CLOSED"
-    #             exit(0)
-    #     else:
-    #         screen.blit(text, text_rect)
-
-    # pygame.draw.rect(screen, (0, 255, 0), (20, 530, int(100 * (float(health) / max_health)), 20))
-    # pygame.draw.rect(screen, (255, 0, 0),
-    #                  (20 + int(100 * (float(health) / max_health)), 530,
-    #                   int(100 * (1 - (float(health) / max_health))), 20))
-    # pygame.draw.rect(screen, (0, 0, 0), (20, 530, 100, 20), 5)
-
-    # pygame.draw.line(screen, (0, 0, 0), (mouse[0] - 17, mouse[1]), (mouse[0] - 3, mouse[1]), 5)
-    # pygame.draw.line(screen, (0, 0, 0), (mouse[0] + 17, mouse[1]), (mouse[0] + 3, mouse[1]), 5)
-    # pygame.draw.line(screen, (0, 0, 0), (mouse[0], mouse[1] + 17), (mouse[0], mouse[1] + 3), 5)
-    # pygame.draw.line(screen, (0, 0, 0), (mouse[0], mouse[1] - 17), (mouse[0], mouse[1] - 3), 5)
-    #
-    # pygame.draw.line(screen, (0, 255, 0), (mouse[0] - 15, mouse[1]), (mouse[0] - 5, mouse[1]), 2)
-    # pygame.draw.line(screen, (0, 255, 0), (mouse[0] + 15, mouse[1]), (mouse[0] + 5, mouse[1]), 2)
-    # pygame.draw.line(screen, (0, 255, 0), (mouse[0], mouse[1] + 15), (mouse[0], mouse[1] + 5), 2)
-    # pygame.draw.line(screen, (0, 255, 0), (mouse[0], mouse[1] - 15), (mouse[0], mouse[1] - 5), 2)
-
-    # for i in xrange(5 - shot):
-    #     screen.blit(ammo, (20 + i * 15, 560))
-
-    # if debug:
-    #     for _players_rect, _player_id in players_rects:
-    #         if _players_rect is not None:
-    #             pygame.draw.rect(screen, (255, 0, 0), _players_rect, 1)
-    #     if player_pos is not None:
-    #         pygame.draw.line(screen, (0, 255, 0), point1, point3)
-    #         pygame.draw.line(screen, (0, 255, 0), point1, point2)
-    #         pygame.draw.line(screen, (0, 255, 0), point3, point2)
-    #         pygame.draw.circle(screen, (0, 0, 255), (player_pos[0], player_pos[1]), 1)
-    #         pygame.draw.circle(screen, (0, 0, 255), (int(point3[0]), int(point3[1])), 1)
-
-    # for players_rect, player_id in players_rects:
-    #     if players_rect is not None:
-    #         for bullet in bullets:
-    #             bullrect = pygame.Rect(bullet_img.get_rect())
-    #             bullrect.left = bullet[2]
-    #             bullrect.top = bullet[3]
-    #             if players_rect.colliderect(bullrect):
-    #                 if int(player_id) != int(bullet[0]) and player_positions[player_id - 1] is not None:
-    #                     players_health[player_id - 1] -= 1
-    #                     enemy_hit(player_id, bullet[0])
-    #                     if bullet in bullets:
-    #                         bullets.remove(bullet)
-    #                     shot -= 1 if shot > 0 else 0
-    #                     delete_bullet(bullet)
-
     pygame.display.flip()
 
     for event in pygame.event.get():
@@ -1136,22 +739,18 @@ while running:
     direction = -1
     try:
         if keys[0] and player_rect.top - player_speed > 0:
-            # player_pos[1] -= player_speed
             my_player.delta_y(-player_speed)
             direction = 0
             moved = True
         elif keys[2] and player_rect.top + player_rect.height + player_speed < height:
-            # player_pos[1] += player_speed
             my_player.delta_y(+player_speed)
             direction = 2
             moved = True
         if keys[1] and player_rect.left - player_speed > 0:
-            # player_pos[0] -= player_speed
             my_player.delta_x(-player_speed)
             direction = 1
             moved = True
         elif keys[3] and player_rect.left + player_rect.width + player_speed < width:
-            # player_pos[0] += player_speed
             my_player.delta_x(+player_speed)
             direction = 3
             moved = True
