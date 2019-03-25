@@ -23,7 +23,7 @@ pip install pygame
 
 ## Authors
 
-* **Oran Simhony** - [ohmn123](https://github.com/ohmn123)
+* **Oran Simhony** - [oransimhony](https://github.com/oransimhony)
 
 ## License
 
